@@ -1,0 +1,6 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("Matrix", "sparseMatrix", "bdiag", "rowSums", "colSums", "summary")
+importFrom("AnnotationDbi", "Term", "Ontology")
+importFrom("ggm", "transClos")
+importFrom("stats", "p.adjust", "phyper")
+importFrom("utils", "flush.console")
