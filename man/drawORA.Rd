@@ -6,7 +6,7 @@ To draw the gene ontology DAG containing ORA results' information.
 }
 \description{
 To draw the gene ontology DAG containing ORA results' information.
-Prepares data for \code{plotGOgraph} which does the actual plotting.
+Prepares data for \code{\link{plotGOgraph}} which does the actual plotting.
 }
 \usage{
 drawORA(ORAresults, PlotFileWithExt, PlotDirectory, MarkDetails = TRUE, 
@@ -69,7 +69,7 @@ CL
 }
 
 \seealso{
-For further details about ORAresults, please see \code{ORA}.}
+For further details about ORAresults, please see \code{\link{ORA}}}.
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

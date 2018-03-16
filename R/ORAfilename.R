@@ -2,8 +2,8 @@ ORAfilename <- function(OutFile, NrOfValidInputGenes, Correction, PvalueThreshol
 WithRefSet = FALSE){
 # Function to complete the OutFile name passed to dbtORA with ORA parameters.
 
-# OutFilePlusParams <- ORAfilename(OutFile, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur)
-# # # OutFilePlusParams <- ORAfilename(OutFile, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, ABCAnalysis, ImpThreshold)
+# OutFilePlusParams <- ORAfilename(OutFile, NrOfValidInputGenes, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur)
+# # # OutFilePlusParams <- ORAfilename(OutFile, NrOfValidInputGenes, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, ABCAnalysis, ImpThreshold)
 
 # INPUT:
 # Most of the parameters given to dbtORA (default values set in dbtORA!):
@@ -33,19 +33,21 @@ WithRefSet = FALSE){
 
 # OUTPUT:
 # OutFilePlusParams			String;
-#												The complemented OutFile.
+#												The complemented OutFile without ext.
 
 # AUTHOR:
 # CL, 03.03.2016
 
 # USES: 
-# [1] "function"  "fileparts" "gsub"      "paste"     "if"        "is.null"  
-# [7] "return"   
+# [1] "function"    "require"     "basename"    "file_path_sans_ext" 
+# [5] "paste0"      "paste"       "if"          "return"            
 
 
-# Wir muessen die Dateiendung entfernen, sofern gegeben, Parameter anfuegen und Dateiendung wieder anhaengen.
-OutFileParts <- fileparts(OutFile)
-OutFileWithoutExt <- gsub(OutFileParts$ext, '', OutFile)
+# requireNamespace('tools')
+# requireNamespace('utils')
+
+# Wir muessen die Dateiendung entfernen, sofern gegeben, und Parameter anfuegen.
+OutFileWithoutExt <- basename(tools::file_path_sans_ext(OutFile))
 OutFileWithoutExt <- paste0(OutFileWithoutExt, 'Genes', NrOfValidInputGenes)
 OutFilePlusParams <- paste(OutFileWithoutExt, Correction, PvalueThreshold, MinNrOfGenes, sep='_')
 if(OnlyManuCur){

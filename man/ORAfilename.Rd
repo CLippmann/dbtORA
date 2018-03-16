@@ -8,8 +8,7 @@ Function to complete the OutFile name passed to dbtORA with ORA parameters.
 Function to complete the OutFile name passed to dbtORA with ORA parameters.
 }
 \usage{
-ORAfilename(OutFile, Correction, PvalueThreshold, MinNrOfGenes, 
-
+ORAfilename(OutFile, NrOfValidInputGenes, Correction, PvalueThreshold, MinNrOfGenes, 
 OnlyManuCur, WithRefSet = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.

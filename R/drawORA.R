@@ -70,10 +70,10 @@ drawORA <- function(ORAresults, PlotFileWithExt, PlotDirectory, MarkDetails = TR
 
 # USES:
 # functions:
- # [1] "function"        "do.call"         "match"           "if"             
- # [5] "any"             "is.na"           "warning"         "termId"         
- # [9] "rep"             "length"          "as.logical"      "termDescription"
-# [13] "plotGOgraph"     "t" 
+ # [1] "function"           "do.call"            "match"              "if"                 "any"               
+ # [6] "is.na"              "warning"            "termId"             "length"             "print"             
+# [11] "paste0"             "basename"           "file_path_sans_ext" "file_ext"           "rep"               
+# [16] "as.logical"         "termDescription"    "plotGOgraph"
 
 
 # Nach Ontologie aufschluesseln
@@ -118,7 +118,7 @@ GOtermIDs <- termId(AdjBP$GOtermNrs)
 if(length(GOtermIDs)==0){
 	print('drawORA: No GOterms in BP-DAG. Nothing to draw.')
 }else{
-	PlotFile <- paste0(fileparts(PlotFileWithExt)$name, '_BP', fileparts(PlotFileWithExt)$ext)
+	PlotFile <- paste0(basename(tools::file_path_sans_ext(PlotFileWithExt)), '_BP.', file_ext(PlotFileWithExt))
 	# PlotDirectory <- PlotDirectory
 	Significant <- rep(0,length(GOtermIDs))
 	Significant[BPIndex] <- 1
@@ -152,7 +152,7 @@ GOtermIDs <- termId(AdjMF$GOtermNrs)
 if(length(GOtermIDs)==0){
 	print('drawORA: No GOterms in MF-DAG. Nothing to draw.')
 }else{
-	PlotFile <- paste0(fileparts(PlotFileWithExt)$name, '_MF', fileparts(PlotFileWithExt)$ext)
+	PlotFile <- paste0(basename(tools::file_path_sans_ext(PlotFileWithExt)), '_MF.', file_ext(PlotFileWithExt))
 	# PlotDirectory <- PlotDirectory
 	Significant <- rep(0,length(GOtermIDs))
 	Significant[MFIndex] <- 1
@@ -186,7 +186,7 @@ GOtermIDs <- termId(AdjCC$GOtermNrs)
 if(length(GOtermIDs)==0){
 	print('drawORA: No GOterms in CC-DAG. Nothing to draw.')
 }else{
-	PlotFile <- paste0(fileparts(PlotFileWithExt)$name, '_CC', fileparts(PlotFileWithExt)$ext)
+	PlotFile <- paste0(basename(tools::file_path_sans_ext(PlotFileWithExt)), '_CC.', file_ext(PlotFileWithExt))
 	# PlotDirectory <- PlotDirectory
 	Significant <- rep(0,length(GOtermIDs))
 	Significant[CCIndex] <- 1

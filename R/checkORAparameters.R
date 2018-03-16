@@ -54,10 +54,11 @@ PlotExt){
 
 # USES:
 # functions:
- # [1] "function"     "c"            "is.character" "is.null"      "is.numeric"  
- # [6] "is.logical"   "sum"          "length"       "if"           "which"       
-# [11] "stop"         "paste"        "names"        "fileparts"    "dir.exists"  
-# [16] "file.exists"  "paste0" 
+ # [1] "function"           "c"                  "is.character"       "is.null"            "is.numeric"        
+ # [6] "is.logical"         "rep"                "sum"                "length"             "if"                
+# [11] "which"              "stop"               "paste"              "names"              "file_ext"          
+# [16] "basename"           "file_path_sans_ext" "dirname"            "dir.exists"         "file.exists"       
+# [21] "paste0"             
 
 ##################################################
 # Datentypen der einzelnen Parameter ueberpruefen:
@@ -92,44 +93,48 @@ if(!DatentypOK){ # Wenn nicht alle TRUE, gibt die Parameter, die den falschen Ty
 
 ######################################################################################################
 # Ist InFileWithExt ein filename mit einer der zugelassenen Extensions im Verzeichnis InFileDirectory? 
-InFileWithExtParts <- fileparts(InFileWithExt)
+InFileWithExtExt <- file_ext(InFileWithExt)
+InFileWithExtName <- basename(tools::file_path_sans_ext(InFileWithExt))
+InFileWithExtDir <- dirname(InFileWithExt)
 # Extension von InFileWithExt ok?
-if(!(InFileWithExtParts$ext %in% c('.names', '.lrn', '.txt'))){
+if(!(InFileWithExtExt %in% c('names', 'lrn', 'txt'))){
 	stop('checkORAparameters: Extension of InFileWithExt is not correct. Has to be one of "lrn", "names" or "txt". Function stops.')
 }
 # Verzeichnispfad InFileDirectory existent und bei InFileWithExt kein Pfad angegeben?
 if(!dir.exists(InFileDirectory)){
 	stop('checkORAparameters: InFileDirectory does not exist. Function stops.')
 }
-if(InFileWithExtParts$pathstr != '.'){
+if(InFileWithExtDir != '.'){
 	stop('checkORAparameters: InFileWithExt may not contain complete path. Function stops.')
 }
 # File InFileWithExt im Verzeichnis InFileDirectory existent?
-FileOK <- file.exists(paste0(InFileDirectory, '/', InFileWithExtParts$name, InFileWithExtParts$ext))
+FileOK <- file.exists(paste0(InFileDirectory, '/', InFileWithExtName,'.', InFileWithExtExt))
 if(!FileOK){
-	stop('checkORAparameters: There is no file called ', InFileWithExtParts$name, InFileWithExtParts$ext,' in InFileDirectory. Function stops.')
+	stop('checkORAparameters: There is no file called ', InFileWithExtName,'.', InFileWithExtExt,' in InFileDirectory. Function stops.')
 }
 
 ######################################################################################################
 # Ist RefSetFileWithExt (falls gegeben) ein filename mit einer der zugelassenen Extensions 
 # im Verzeichnis RefSetDirectory?
 if(!is.null(RefSetFileWithExt)){
-	RefSetFileWithExtParts <- fileparts(RefSetFileWithExt)
-	# Extension von RefSetFileWithExt ok?
-	if(!(RefSetFileWithExtParts$ext %in% c('.names', '.lrn', '.txt'))){
+	RefSetFileWithExtExt <- file_ext(InFileWithExt)
+	RefSetFileWithExtName <- basename(tools::file_path_sans_ext(InFileWithExt))
+	RefSetFileWithExtDir <- dirname(InFileWithExt)
+		# Extension von RefSetFileWithExt ok?
+	if(!(RefSetFileWithExtExt %in% c('names', 'lrn', 'txt'))){
 		stop('checkORAparameters: Extension of RefSetFileWithExt is not correct. Has to be one of "lrn", "names" or "txt". Function stops.')
 	}
 	# Verzeichnispfad RefSetDirectory existent und bei RefSetFileWithExt kein Pfad angegeben?
 	if(!dir.exists(RefSetDirectory)){
 		stop('checkORAparameters: RefSetDirectory does not exist. Function stops.')
 	}
-	if(RefSetFileWithExtParts$pathstr != '.'){
+	if(RefSetFileWithExtDir != '.'){
 		stop('checkORAparameters: RefSetFileWithExt may not contain complete path. Function stops.')
 	}
 	# File RefSetFileWithExt im Verzeichnis RefSetDirectory existent?
-	FileOK <- file.exists(paste0(RefSetDirectory, '/', RefSetFileWithExtParts$name, RefSetFileWithExtParts$ext))
+	FileOK <- file.exists(paste0(RefSetDirectory, '/', RefSetFileWithExtName, '.', RefSetFileWithExtExt))
 	if(!FileOK){
-		stop('checkORAparameters: There is no file called ', RefSetFileWithExtParts$name, RefSetFileWithExtParts$ext,' in RefSetDirectory. Function stops.')
+		stop('checkORAparameters: There is no file called ', RefSetFileWithExtName, '.', RefSetFileWithExtExt,' in RefSetDirectory. Function stops.')
 	}
 }# end if(!is.null(RefSetFileWithExt))
 

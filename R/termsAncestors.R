@@ -28,7 +28,7 @@ termsAncestors <- function(GOTermNr, OntologyNr){
 # functions:
  # [1] "function"         "if"               "length"           "stop"            
  # [5] "all"              "is.numeric"       "switch"           "as.character"    
- # [9] "ReadSparseMatrix" "GOdataDi"         "termNr"           "match"           
+ # [9] "ReadSparseMatrix" "system.file"      "termNr"           "match"           
 # [13] "which"            "is.na"            "sort"             "unique"          
 # [17] "return"           "list"  
 
@@ -42,15 +42,15 @@ if(!is.numeric(OntologyNr)){stop('termsAncestors: OntologyNr has to be numeric: 
 # Infos ueber Terme aus GOdata einlesen:
 switch(as.character(OntologyNr),
 	'1' =	{	# biological process = BP
-					AncSparseMatrix <- ReadSparseMatrix('BPAncestorsSparseMatrix',GOdataDi('09Originale'))
+					AncSparseMatrix <- ReadSparseMatrix('BPAncestorsSparseMatrix', system.file('extdata',package='ORA'))
 					#GOroot <- 8150
 				},
 	'2' = { # molecular function = MF
-					AncSparseMatrix <- ReadSparseMatrix('MFAncestorsSparseMatrix', GOdataDi('09Originale'))
+					AncSparseMatrix <- ReadSparseMatrix('MFAncestorsSparseMatrix', system.file('extdata',package='ORA'))
 					#GOroot <- 3674
 				},
 	'4' = { # cellular component = CC
-					AncSparseMatrix <- ReadSparseMatrix('CCAncestorsSparseMatrix', GOdataDi('09Originale'))
+					AncSparseMatrix <- ReadSparseMatrix('CCAncestorsSparseMatrix', system.file('extdata',package='ORA'))
 					#GOroot <- 5575
 				},
 	stop('termsAncestors: OntologyNr has to be 1 (=BP), 2 (=MF) or 4 (=CC)! Function stops.')

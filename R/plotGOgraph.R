@@ -39,8 +39,16 @@ plotGOgraph <- function(Adj,GOtermIDs,PlotFile,PlotDirectory=getwd(),
 # 												Knoten mit which(Up==1) werden rot, die andereen gruen gezeichnet. Default: NULL
 
 # USES:
-# package GO.db
-# functions termDescription, checkFilename, fileparts
+# package GO.db, tools, utils
+# functions:
+#  [1] "function"           "getwd"              "rep"                "length"             "t"                 
+ # [6] "if"                 "nrow"               "ncol"               "stop"               "any"               
+# [11] "nchar"              "warning"            "is.character"       "print"              "return"            
+# [16] "file_ext"           "basename"           "file_path_sans_ext" "is.null"            "which"             
+# [21] "strtrim"            "paste0"             "termDescription"    "is.nan"             "signif"            
+# [26] "as.logical"         "colSums"            "c"                  "for"                "setwd"             
+# [31] "write"              "checkFilename"      "list"               "gsub"               "try"               
+# [36] "system"             "Sys.info"           "switch"             "shell"  
 
 # AUTHOR:
 # CL
@@ -68,19 +76,20 @@ if(nrow(Adj)==0){print('plotGOgraph: Adjacency matrix is <0x0 matrix> no data to
 								return()}
 
 
-FileParts <- fileparts(PlotFile)
+FilePartsExt <- file_ext(PlotFile)
+FilePartsName <- basename(tools::file_path_sans_ext(PlotFile))
 # Herausfinden, welches Format die Ausgabedatei haben soll.
-if(length(FileParts$name)==0){
+if(length(FilePartsName)==0){
 	FileName <- 'plotGOgraphOutput'
 }else{
-	FileName <- FileParts$name
-}#end if(length(FileParts$name)==0)
+	FileName <- FilePartsName
+}#end if(length(FilePartsName)==0)
 
-if(nchar(FileParts$ext)==0){
+if(nchar(FilePartsExt)==0){
 	Ext <- '.png'
 }else{
-	Ext <- FileParts$ext
-}#end if(nchar(FileParts$ext)==0)
+	Ext <- paste0('.', FilePartsExt)
+}#end if(nchar(FilePartsExt)==0)
 
 MAXLENSTR = 40; # maximale Laenge der GOtermNames in den Knoten
 

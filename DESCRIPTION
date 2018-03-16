@@ -1,12 +1,12 @@
 Package: ORA
 Type: Package
 Title: Overrepresentation Analysis
-Version: 1.2.9
+Version: 1.3.8
 Date: 2017-03-21
 Author: Catharina Lippmann, Michael Thrun, Alfred Ultsch
 Maintainer: Catharina Lippmann <lippmanc@mathematik.uni-marburg.de>
 Description: Calculation functions for overrepresentation analysis and directed acyclic graph building.
 License: GPL
-Imports: Matrix, ggm, AnnotationDbi
+Imports: Matrix, ggm, AnnotationDbi, tools, utils, org.Hs.eg.db, GO.db, stats
 LazyLoad: no
 LazyData: no

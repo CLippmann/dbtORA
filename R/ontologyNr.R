@@ -22,12 +22,11 @@ ontologyNr <- function(GOtermNrOrId, verbose = FALSE){
 
 # USES:
 # package GO.db
-# function requireRpackage()
 
 # AUTHOR:
 #	CL, 29.06.2015
 
-#requireRpackage('GO.db')
+
 #requireNamespace(package ='GO.db', quietly = TRUE)
 
 # Je nach Eingabe von GOterm number zu GOterm ID umwandeln (oder so lassen).

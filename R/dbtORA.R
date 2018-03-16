@@ -1,5 +1,5 @@
 dbtORA <- function(InFileWithExt, PvalueThreshold = 0.05, Correction = 'BON', OnlyManuCur = TRUE, MinNrOfGenes = 2, InFileDirectory = getwd(), OutFile = InFileWithExt, OutFileDirectory = InFileDirectory, RefSetFileWithExt = NULL, RefSetDirectory = InFileDirectory, drawDAG = TRUE, MarkDetails = TRUE, MarkHeadlines = TRUE,  #ABCAnalysis = FALSE, ImpThreshold = 0, 
-PlotExt = 'png'){
+PlotExt = 'png'){ #, SuggestParams = FALSE){
 # Function to do an Overrepresentation Analysis including the drawing of DAGs.
 
 # V <- dbtORA(InFileWithExt, PvalueThreshold = 0.05, Correction = 'BON', OnlyManuCur = TRUE, MinNrOfGenes = 2, InFileDirectory = getwd(), OutFile = InFileWithExt, OutFileDirectory = InFileDirectory, RefSetFileWithExt = NULL, RefSetDirectory = InFileDirectory, drawDAG = TRUE, MarkDetails = TRUE, MarkHeadlines = TRUE, PlotExt = 'png')
@@ -49,6 +49,9 @@ PlotExt = 'png'){
 # # #										the term won't occur in the DAG.
 # PlotExt						String; Default: 'png' 
 #										Extension of the plotfile showing the DAG. One of 'pdf', 'eps' or 'png'.
+# # # SuggestParams			Boolean; Default: FALSE
+# # #										Set TRUE if suggestions for PvalueThreshold and MinNrOfGenes should be calculated and used for ORA.
+# # #										Note: If TRUE, ORA will be calculated twice. This will take some time.
 
 # # # OUTPUT:
 # # # *.lrn, *.names, AdjMatrix GO2GO, Matrix Genes2Terms und DAGs (falls drawDAG = TRUE) fuer die nicht interaktive Version.
@@ -58,17 +61,16 @@ PlotExt = 'png'){
 # February 2016, version 3
 
 # USES:
-# packages: matrixStats, ggm, Matrix, ??GO.db
+# packages: matrixStats, ggm, Matrix, GO.db, tools, utils
 # functions:
- # [1] "function"           "getwd"              "requireRpackage"   
- # [4] "if"                 "missing"            "checkORAparameters"
- # [7] "ORAfilename"        "fileparts"          "switch"            
-# [10] "ReadNAMES"          "ReadLRN"            "ReadTXT"           
-# [13] "unname"             "stop"               "all"               
-# [16] "is.numeric"         "sort"               "seq_len"           
-# [19] "length"             "warning"            "is.null"           
-# [22] "ORA"                "WriteORAresults"    "drawORA"           
-# [25] "paste0"
+# [1]  "function"           "getwd"              "c"                  "for"                "suppressMessages"  
+ # [6] "requireNamespace"   "if"                 "missing"            "print"              "keys"              
+# [11] "flush.console"      "ask2loadFile"       "paste0"             "readline"           "checkORAparameters"
+# [16] "switch"             "file_ext"           "ReadNAMES"          "ReadLRN"            "ReadTXT"           
+# [21] "unname"             "stop"               "all"                "is.numeric"         "sort"              
+# [26] "seq_along"          "warning"            "system.file"        "is.null"            "ORA"               
+# [31] "setwd"              "dim"                "length"                        
+# [36] "ORAfilename"        "WriteORAresults"    "drawORA"  
 
 
 # TO DO:
@@ -77,16 +79,8 @@ PlotExt = 'png'){
 
 
 # # Lade benoetigte packages (unterdruecke Warnmeldungen, Statusberichte und Infos):
-importantPackages = c("GO.db", "IRanges", "S4Vectors","BiocGenerics", "AnnotationDbi",  "Biobase")
-for(i in importantPackages) suppressMessages(library(i, character.only = T, quietly = T, warn.conflicts = F))
-# #requireRpackage('ggm', Verbose = TRUE)
-# requireNamespace(package ='ggm', quietly = TRUE) 
-# #requireRpackage('Matrix', Verbose = TRUE)
-# requireNamespace(package ='Matrix', quietly = TRUE)
-# #requireRpackage('matrixStats', Verbose = TRUE) 
-# requireNamespace(package ='matrixStats', quietly = TRUE)
-# requireNamespace(package ='GO.db', quietly = TRUE)
-# requireNamespace(package='AnnotaionDbi', quietly = TRUE)
+# importantPackages = c("GO.db",  "AnnotationDbi",  "tools", "utils", "Matrix")#"Biobase", "IRanges", "S4Vectors","BiocGenerics",
+#for(i in importantPackages) suppressMessages(requireNamespace(i, character.only = T, quietly = T, warn.conflicts = F))
 
 if(missing(InFileWithExt)){ 
 	# interaktive Version aufrufen.
@@ -100,7 +94,7 @@ if(missing(InFileWithExt)){
 	print(paste0(InFileWithExt, ' selected.'))
 	
   n <- readline("Do you want to use a reference set? y/n  ")
-  if(n == 'y'){
+  if(n == 'y' || n == 'Y'){
 		print('Please select file containing NCBIs as keys (for *.names and *.lrn files) or NCBIs as the only column (for *.txt files).')
 		flush.console() # print wird sofort ausgegeben.
 		Refset <- ask2loadFile(c("names", "lrn", "txt"))
@@ -113,19 +107,28 @@ if(missing(InFileWithExt)){
 	}
 }	
 
+# Sollen Vorschlaege fuer P-value threshold und MinNrOfGenes gemacht werden?
+# if(missing(SuggestParams)){
+	# m <- readline('Would you like to get suggestions for p-value threshold and minimum number of genes that should be annotated to a GOterm to be considered in DAG? y/n   ')
+	# if(m == 'y'||'Y'){
+		# SuggParams <- TRUE
+	# }else{
+		# SuggParams <- FALSE
+	# }# end if SuggParams = TRUE
+# }
+
 # nichtinteraktive Version:
 # Ueberpruefen, ob die Parameter, die der ORA uebergeben wurden, korrekt sind: 
 # Falls nicht, bricht Programm ab!
 checkORAparameters(InFileWithExt, InFileDirectory, RefSetFileWithExt, RefSetDirectory, OutFile, OutFileDirectory, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, drawDAG, MarkDetails, MarkHeadlines, PlotExt)
 
 # Daten (NCBIs) einlesen:
-InFile <- fileparts(InFileWithExt)
-switch(InFile$ext, 
-	'.names'	= {	NAMES <- ReadNAMES(InFileWithExt, InFileDirectory)
+switch(file_ext(InFileWithExt), 
+	'names'	= {	NAMES <- ReadNAMES(InFileWithExt, InFileDirectory)
 								NCBIs <- NAMES$Key},
-	'.lrn'		= {	LRN <- ReadLRN(InFileWithExt, InFileDirectory)
+	'lrn'		= {	LRN <- ReadLRN(InFileWithExt, InFileDirectory)
 								NCBIs <- LRN$Key},
-	'.txt'		= {	TXT <- ReadTXT(InFileWithExt, InFileDirectory)
+	'txt'		= {	TXT <- ReadTXT(InFileWithExt, InFileDirectory)
 								NCBIs <- unname(TXT$Data[,1])},
 	stop('Invalid input format for InFileWithExt!')
 )#end switch
@@ -139,7 +142,7 @@ if(all(sort(NCBIs) == seq_along(NCBIs))){
 }
 
 # GOAall einlesen, weil wir sonst nicht wissen welche NCBIs bekannt sind:
-GOAall <- ReadLRN('GOAall.lrn',GOdataDi('09Originale'))
+GOAall <- ReadLRN('GOAall.lrn',system.file('extdata',package='ORA'))
 AllNCBIs <- unname(GOAall$Data[,1])
 
 # Jetzt das Reference Set einlesen, falls gegeben und ORA durchfuehren:
@@ -148,8 +151,7 @@ if(is.null(RefSetFileWithExt)){ # RefSet nicht gegeben:
 	ORAresults <- ORA(NCBIs, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, RefSet = NULL, GOAall)
 }else{ # RefSet gegeben!
 	# RefSet einlesen:
-	InRefFileExt <- fileparts(RefSetFileWithExt)$ext
-	switch(InRefFileExt, 
+	switch(file_ext(RefSetFileWithExt), 
 		'.names'	= {	NAMES <- ReadNAMES(RefSetFileWithExt, RefSetDirectory)
 									RefSet <- NAMES$Key},
 		'.lrn'		= {	LRN <- ReadLRN(RefSetFileWithExt, RefSetDirectory)
@@ -170,23 +172,41 @@ if(is.null(RefSetFileWithExt)){ # RefSet nicht gegeben:
 	ORAresults <- ORA(NCBIs, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, RefSet, GOAall)
 }# end if RefSet gegeben oder nicht
 
+# # # # Falls Parameter vorgeschlagen werden sollen, hier berechnen und neue ORA damit durchrechnen:
+# # # if(SuggestParams == TRUE){
+	# # # V <- suggestORAparams(ORAresults)
+	# # # SuggestedPvalThreshold <- V$SuggestedPvalThreshold
+	# # # SuggestedMinNrOfGenes <- V$SuggestedMinNrOfGenes
+	# # # ## SuggestedRemarkableness <- V$SuggestedRemarkableness
+	# # # #IndicesOfRejectedGOterms <- V$IndicesOfRejectedGOterms
+	
+	# # # print(paste0('Suggested PvalueThreshold: ', SuggestedPvalThreshold, '.'))
+	# # # print(paste0('Suggested MinNrOfGenes: ', SuggestedMinNrOfGenes, '.'))
+	# # # #print(paste0('By using suggested parameters ', length(IndicesOfRejectedGOterms), ' GOterms are removed from analysis.'))
+	# # # print('Calculating ORA with suggested p-value threshold and suggested minimum number of genes that should at least be annotated to one GOterm to be considered in analysis.')
+	
+	# # # # ORA nochmal mit den neuen Parametern rechnen:
+	# # # dbtORA(InFileWithExt = InFileWithExt, PvalueThreshold = SuggestedPvalThreshold, Correction = Correction, OnlyManuCur = OnlyManuCur, MinNrOfGenes = SuggestedMinNrOfGenes, InFileDirectory = InFileDirectory, OutFile = OutFile, OutFileDirectory = OutFileDirectory, RefSetFileWithExt = RefSetFileWithExt, RefSetDirectory = RefSetDirectory, drawDAG = drawDAG, MarkDetails = MarkDetails, MarkHeadlines = MarkHeadlines, PlotExt = PlotExt, SuggestParams = FALSE)
+	# # # return()
+# # # }# end if SuggestParams TRUE
+
 # Ueberpruefen wie viele Gene wir tatsaechlich zur Berechnung benutzt haben. Doppelte und
 # ungefundene werden nicht beruecksichtigt.
 # Achtung: Auch "OnlyManuCur" beruecksichtigen - dadurch koennen Gene rausfliegen!
 AnzValidInputGenes <- dim(ORAresults$Genes2GOtermsMatrix)[1] -1 # Die Dimension der Genes2Terms-Matrix liefert Anzahl verwendeter Gene
 
 if(AnzValidInputGenes != length(NCBIs)){
-	warning(paste0('dbtORA: ', length(NCBIs)-AnzValidInputGenes, ' input gene(s) were not used. There might be duplicates in input genes or some input genes are not annotated to any GO term. For analysis used genes can be found in ', InFile$name, 'Genes', AnzValidInputGenes, '.names. in ', OutFileDirectory, '.'))
+	warning(paste0('dbtORA: ', length(NCBIs)-AnzValidInputGenes, ' input gene(s) were not used. There might be duplicates in input genes or some input genes are not annotated to any GO term. For analysis used genes can be found in ', basename(file_path_sans_ext(InFileWithExt)), 'Genes', AnzValidInputGenes, '.names. in ', OutFileDirectory, '.'))
 	
 	# # Nur benutzte Gene ausschreiben:
-	# FileName <- paste0(InFile$name, 'Genes', AnzValidInputGenes, '.names')
+	# FileName <- paste0(basename(tools::file_path_sans_ext(InFileWithExt)), 'Genes', AnzValidInputGenes, '.names')
 	# Key <- dimnames(ORAresults$Genes2GOtermsMatrix)[[1]][-1]
 	# GeneTexts <- NCBI2GeneName(Key)
 	# Names <- GeneTexts[[2]]
 	# FurtherTexts <- GeneTexts[[1]]
 	# OutDirectory <- OutFileDirectory
 	# DescriptionHeader <- c('NCBI', 'GeneSymbol', 'GeneName')
-	# Comments <- 'Genes from ORA input used for analysis. GeneNames from "AllAnnNCBIsPlusGeneName.names" in GOdataDi("09Originale")).'
+	# Comments <- 'Genes from ORA input used for analysis. GeneNames from "AllAnnNCBIsPlusGeneName.names" in system.file('extdata',package='ORA').'
 	# WriteNAMES(FileName, Names, Key, FurtherTexts, OutDirectory, DescriptionHeader, Comments)
 }# end if duplicated or not found genes exist
 

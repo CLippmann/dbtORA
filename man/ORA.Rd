@@ -10,8 +10,8 @@ using a one-sided hypergeometric test for given genes.
 }
 \usage{
 ORA(NCBIs, Correction = "BON", PvalueThreshold = 0.05, MinNrOfGenes = 2, 
-
-OnlyManuCur = FALSE, RefSet = NULL)
+OnlyManuCur = FALSE, RefSet = NULL, GOAall = ReadLRN("GOAall.lrn", 
+system.file("extdata",package = "ORA")))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,6 +38,9 @@ Set TRUE if only manually curated gene annotations should be considered.}
 Numeric; Default: NULL
 Vector of NCBI numbers of genes that form the reference set (universe). If not given i.e.
 NULL or missing, all known genes are taken as universe.}
+	\item{GOAall}{
+Lrn-File containing all direct and indirect annotations of genes to GOterms as sparse
+Matrix. File can be found in system.file("extdata", package = 'ORA'), called "GOAall.lrn".}
 }
 
 \value{

@@ -1,4 +1,4 @@
-ORA <- function(NCBIs, Correction = 'BON', PvalueThreshold = 0.05, MinNrOfGenes = 2, OnlyManuCur = FALSE, RefSet = NULL, GOAall = ReadLRN('GOAall.lrn', GOdataDi('09Originale'))){
+ORA <- function(NCBIs, Correction = 'BON', PvalueThreshold = 0.05, MinNrOfGenes = 2, OnlyManuCur = FALSE, RefSet = NULL, GOAall = ReadLRN('GOAall.lrn', system.file('extdata',package='ORA'))){
 # Function to calculate a overrepresentation analysis, using Fisher's exact test.
 
 # ORAResults <- ORA(NCBIs, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, RefSet)
@@ -79,7 +79,7 @@ ORA <- function(NCBIs, Correction = 'BON', PvalueThreshold = 0.05, MinNrOfGenes 
 # USES:
 # packages: Matrix
 # functions:
- # [1] "function"                "require"                "ReadLRN"                 "GOdataDi"               
+ # [1] "function"                "require"                "ReadLRN"                 "system.file"               
  # [5] "unname"                  "if"                     "which"                   "intersect"              
  # [9] "length"                  "warning"                "paste0"                  "missing"                
 # [13] "is.null"                 "split"                  "lapply"                  "unique"                 
@@ -105,9 +105,9 @@ Evidence <- unname(GOAall$Data[,3])
 GOsOntology <- unname(GOAall$Data[,4]) # wird nur ganz am Ende verwendet um die Ontology zu bestimmen
 names(GOsOntology) <- GOtermNr
 
-GOInfoBP <- ReadLRN('GOTermInfosBP.lrn', GOdataDi('09Originale'))
-GOInfoMF <- ReadLRN('GOTermInfosMF.lrn', GOdataDi('09Originale'))
-GOInfoCC <- ReadLRN('GOTermInfosCC.lrn', GOdataDi('09Originale'))
+GOInfoBP <- ReadLRN('GOTermInfosBP.lrn', system.file('extdata',package='ORA'))
+GOInfoMF <- ReadLRN('GOTermInfosMF.lrn', system.file('extdata',package='ORA'))
+GOInfoCC <- ReadLRN('GOTermInfosCC.lrn', system.file('extdata',package='ORA'))
 if(OnlyManuCur){ # IC fuer Manu und All unterschiedlich
 	ICInd <- which(GOInfoBP$Header == 'InformationContentBPManu')
 }else{
@@ -170,7 +170,7 @@ if(missing(RefSet)|is.null(RefSet)){ # Kein RefSet gegeben:
 # Parameter fuer hypergeometrischen Test:
 NrOfGenesInUniverse <- length(unique(AllNCBIs)) # Anzahl aller Gene, die zu mindestens einem GO-Term annotiert sind.
 NrOfGenesInSample <- length(ValidInputGenes) # Anzahl der Gene aus dem Input minus doppelte und minus gar nicht annotierte.
-NrOfAnnotationsInTerm <- sapply(ListToInputAssocGOterms2Genes, length) # Wieviele (indirekte + direkte) Annotierungen hat jeder Term, zu dem auch mindestens ein Gen aus dem Input annotiert ist?
+NrOfAnnotationsInTerm <- sapply(ListToInputAssocGOterms2Genes, length) # Wieviele (indirekte + direkte) Annotierungen hat jeder Term (unique also ohne Evidenzen doppelt zu zaehlen!), zu dem auch mindestens ein Gen aus dem Input annotiert ist?
 ObservedNrOfAnnsInTerm <- sapply(lapply(ListToInputAssocGOterms2Genes,intersect,ValidInputGenes),length) # Anzahl der Gene aus dem Input die zu den Termen annotiert sind, zu denen mindestens ein Gen aus dem Input annotiert ist.
 GOtermNrs <- ToInputAssociatedGOterms
 

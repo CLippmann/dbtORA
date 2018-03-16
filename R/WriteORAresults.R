@@ -49,7 +49,7 @@ if(length(ORAresults$LRNresults)!= 19){stop('WriteORAresults: ORAresults$LRNresu
 if(length(ORAresults$NAMESresults)!= 3){stop('WriteORAresults: ORAresults$NAMESresults are of incorrect length. Function stops.')}
 # Typen
 if(!all(sapply(ORAresults$LRNresults[1:17], is.numeric))& all(sapply(ORAresults$LRNresults[18:19], is.logical)|sapply(ORAresults$LRNresults[18:19], is.numeric))){stop('WriteORAresults: One or more column(s) of ORAresults$LRNresults is not of correct type. Function stops.')}
-if(!all(sapply(ORAresults$NAMESresuls[2:3], mode) == 'character' &is.numeric(ORAresults$NAMESresults[[1]]))){stop('WriteORAresults: One or more column(s) of ORAresults$NAMESresults is not of correct type. Function stops.')} # sapply funktioniert nicht fuer "is.character"... -.-
+if(!all(sapply(ORAresults$NAMESresults[2:3], mode) == 'character' &is.numeric(ORAresults$NAMESresults[[1]]))){stop('WriteORAresults: One or more column(s) of ORAresults$NAMESresults is not of correct type. Function stops.')} # sapply funktioniert nicht fuer "is.character"... -.-
 SumGO2GOSparseAdjMat <- Matrix::summary(ORAresults$GO2GOAdjMatrices$GO2GOSparseAdjMatrix)
 if(!is.numeric(ORAresults$Genes2GOtermsMatrix)){stop('WriteORAresults: Entries in Genes2GOtermsMatrix must be numeric. Function stops.')}
 if(!all(sapply(SumGO2GOSparseAdjMat,is.numeric))){stop('WriteORAresults: Entries in GO2GOSparseAdjMatrix must be numeric. Function stops.')}
@@ -69,8 +69,8 @@ Names <- NCBI2GeneName(ValidInputGenes)[[2]]
 Key <- ValidInputGenes
 FurtherTexts <- NCBI2GeneName(ValidInputGenes)[[1]]
 OutDirectory <- OutDirectory
-DescriptionHeader <- c('NCBI', 'GeneSymbol', 'GeneName')
-Comments <- paste0('Valid genes from ORA input file ', InFileWithExt, '. Duplicated or not found \n# (= nowhere annotated) genes were removed. GeneNames and -Symbols from \n# "AllAnnNCBIsPlusGeneName.names" in ', GOdataDi("09Originale"),'.')
+DescriptionHeader <- c('NCBI', 'GeneSymbol', 'GeneDescription')
+Comments <- paste0('Valid genes from ORA input file ', InFileWithExt, '. Duplicated or not found \n# (= nowhere annotated) genes were removed. \n# GeneDescriptions and -Symbols from "AllAnnNCBIsPlusGeneName.names" in ', system.file('extdata',package='ORA'),'.')
 WriteNAMES(FileName, Names, Key, FurtherTexts, OutDirectory, DescriptionHeader, Comments)
 
 
@@ -88,15 +88,15 @@ WriteLRN(FileName,Data,Header,Key,DataDefined,OutDirectory,CommentOrDigits)
 # names zu Termen:
 # WriteNAMES(FileName, Names,Key,FurtherTexts,OutDirectory, DescriptionHeader, Comments)
 FileName <- paste0(FileNameWithoutExt, length(Key), 'Terms.names')
-Names <- ORAresults$NAMESresults$GOtermDescription
+Names <- ORAresults$NAMESresults$GOtermId
 NamesKey <- ORAresults$NAMESresults$GOtermNr 
-FurtherTexts <- ORAresults$NAMESresults$GOtermId
+FurtherTexts <- ORAresults$NAMESresults$GOtermDescription
 OutDirectory <- OutDirectory
-DescriptionHeader <- names(ORAresults$NAMESresults)
+DescriptionHeader <- c('GOtermNr', 'GOtermId', 'GOtermDescription')
 Comments <- paste0('WriteORAresults: ORAresults$NAMESresults. \n# ', 'Parameters: ', Parameter, '\n# ','Original input file: ', InFileWithExt)
 WriteNAMES(FileName, Names,NamesKey,FurtherTexts,OutDirectory, DescriptionHeader, Comments)
 
-if(!TheSameKey(Key, NamesKey)){print('NAMES und LRN haben nicht den gleichen Key. Hier ist was kaputt!')}
+if(!all(Key==NamesKey)){print('NAMES und LRN haben nicht den gleichen Key. Hier ist was kaputt!')}
 
 # Genes2GO-Matrix
 # WriteSparseMatrix(FileName, ZeilenInd, SpaltenInd, Inhalt, Dimension, DimNames, OutDirectory, Header, Key, Comment)
@@ -155,10 +155,10 @@ WriteLRN(FileName,Data,Header,Key,DataDefined,OutDirectory,CommentOrDigits)
 # Passend zur GOterms-GOterms-Matrix noch ne *.names mit den GOtermen speichern:
 FileName <- paste0(FileNameWithoutExt, 'GOterms', ORAresults$GO2GOAdjMatrices$GO2GOSparseAdjMatrix@Dim[1]-1, '.names')
 Key <- as.numeric(dimnames(GOterms2GOtermsMatrix)[[1]])[-1]
-FurtherTexts <- termId(Key)
-Names <- termDescription(FurtherTexts)
+Names <- termId(Key)
+FurtherTexts <- termDescription(Names)
 OutDirectory <- OutDirectory
-DescriptionHeader <- c('GOtermNr', 'GOtermDescription', 'GOtermID')
+DescriptionHeader <- c('GOtermNr', 'GOtermID', 'GOtermDescription')
 Comments <- paste0('GOterms corresponding to GOterms-GOterms-Matrix "', paste0(FileNameWithoutExt, 'GOterms2GOterms', ORAresults$GO2GOAdjMatrices$GO2GOSparseAdjMatrix@Dim[1]-1,'x',ORAresults$GO2GOAdjMatrices$GO2GOSparseAdjMatrix@Dim[2]), '".')
 WriteNAMES(FileName, Names, Key, FurtherTexts, OutDirectory, DescriptionHeader, Comments)
 

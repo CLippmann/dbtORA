@@ -39,7 +39,7 @@ adjMatrixTermsAncestors <- function(GOtermNrInclAncestors, OntologyNr = 1){
 # functions:
  # [1] "function"         "require"          "if"               "length"          
  # [5] "stop"             "all"              "is.numeric"       "switch"          
- # [9] "as.character"     "ReadSparseMatrix" "GOdataDi"         "rownames"        
+ # [9] "as.character"     "ReadSparseMatrix" "system.file"      "rownames"        
 # [13] "match"            "termNr"           "any"              "is.na"           
 # [17] "which"            "as.logical"       "rowSums"          "sapply"          
 # [21] "union"            "matrix"           "sort"             "colnames"        
@@ -58,15 +58,15 @@ if(!is.numeric(OntologyNr)){stop('adjMatrixTermsAncestors: OntologyNr has to be 
 # kinderadjmatrix einlesen je nach OntologyNr:
 switch(as.character(OntologyNr),
 	'1' =	{	# biological process = BP
-					kinderadjsparse <- ReadSparseMatrix('AdjBPsparseMatrix', GOdataDi('09Originale'))
+					kinderadjsparse <- ReadSparseMatrix('AdjBPsparseMatrix', system.file('extdata',package='ORA'))
 					GOtermNames <- kinderadjsparse$DimNames$rownames
 				},
 	'2' = { # molecular function = MF
-					kinderadjsparse <- ReadSparseMatrix('AdjMFsparseMatrix', GOdataDi('09Originale'))
+					kinderadjsparse <- ReadSparseMatrix('AdjMFsparseMatrix', system.file('extdata',package='ORA'))
 					GOtermNames <- kinderadjsparse$DimNames$rownames
 				},
 	'4' = { # cellular component = CC
-					kinderadjsparse <- ReadSparseMatrix('AdjCCsparseMatrix', GOdataDi('09Originale'))
+					kinderadjsparse <- ReadSparseMatrix('AdjCCsparseMatrix', system.file('extdata',package='ORA'))
 					GOtermNames <- kinderadjsparse$DimNames$rownames
 				},
 	stop('termsAncestors: OntologyNr has to be 1 (=BP), 2 (=MF) or 4 (=CC)! Function stops.')
