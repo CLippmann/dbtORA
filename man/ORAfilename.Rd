@@ -31,7 +31,7 @@ Numeric;
 P-value threshold. GO-Terms with p-values greater than PvalueThreshold will be ignored.}
   \item{MinNrOfGenes}{
 Numeric;
-Minimum number of genes annotated to one Term that is accepted. GO-Terms with more than
+Minimum number of genes annotated to one Term that is accepted. Only GO terms with more than
 MinNrOfGenes genes will be considered in calculation.}
   \item{OnlyManuCur}{
 Boolean;

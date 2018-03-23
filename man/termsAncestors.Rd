@@ -8,11 +8,11 @@ Function returns vector of all ancestors in ontology for given GO term numbers.
 Function returns vector of all ancestors in ontology for given GO term numbers.
 }
 \usage{
-termsAncestors(GOTermNr, OntologyNr)
+termsAncestors(GOtermNr, OntologyNr)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{GOTermNr}{
+  \item{GOtermNr}{
 Numeric; 
 Vector of GO term numbers.
 }
@@ -33,7 +33,6 @@ To select the ontology. One of:
 %% ...
 \item{Ancestors}{Numeric; Unique and by number sorted GO terms that are ancestors of input GO terms.}
 \item{TermsWithoutAncestors}{Numeric; Vector of those GO terms for that no ancestors could be found.}
-\item{GOterms2GOtermsMatrix}{Numeric; Sparse matrix of GO terms and ancestors.}
 }
 
 \author{

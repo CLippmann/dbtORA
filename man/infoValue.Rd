@@ -32,7 +32,7 @@ is the same as the number of genes (directly + indirectly) annotated to the root
 A value for each term that describes how informative that term is.}
 \item{InfoValueP}{Numeric;
 The ratio of NrOfAnnotationsInTerm/NrOfGenesInUniverse for each term which is
-the empirical probability of occurence.}
+the empirical probability of occurrence.}
 }
 
 \author{

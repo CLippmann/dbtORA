@@ -96,7 +96,7 @@ Extension of the plotfile showing the DAG. One of 'pdf', 'eps' or 'png'.
 %%  \item{comp1 }{Description of 'comp1'}
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
-Various files containing all the information recieved by ORA, Genes to GO terms matrix, adjacency matrix of the 
+Various files containing all the information received by ORA, Genes to GO terms matrix, adjacency matrix of the 
 GO terms and plots of the corresponding DAGs.
 }
 

@@ -60,7 +60,7 @@ Matrix. File can be found in system.file("extdata", package = 'ORA'), called "GO
 				\item{LRNresults$ExpNrOfAnnsInTerm}{Numeric; Statistically expected number of genes annotated to GO term.} 
 				\item{LRNresults$ObservedNrOfAnnsInTerm}{Numeric; Empirically observed number of genes annotated to GO term.}
 				\item{LRNresults$RelDiff}{Numeric; Relative difference of expected and observed in percent.}
-				\item{LRNresults$Pvalue}{Numeric; Pvalues for each GO term recieved by statistical test.}
+				\item{LRNresults$Pvalue}{Numeric; Pvalues for each GO term received by statistical test.}
 				\item{LRNresults$LogPvalue}{Numeric; log(Pvalues).} 
 				\item{LRNresults$Certainty}{Numeric; Certainty value. See \code{certainty}.} 
 				\item{LRNresults$InfoValue}{Numeric; Value describing partial Shannon information. See \code{infoValue}.}
@@ -86,10 +86,9 @@ Matrix. File can be found in system.file("extdata", package = 'ORA'), called "GO
 		\item{GO2GOAdjMatrices}{List of 4:
 			Adjacency matrices for each ontology and combined sparse matrix.
 			\describe{
-				\item{GO2GOAdjMatrices$GO2GOSparseAdjMatrix}{Numeric; Sparse adjacency matrix describing the complete directed 
+				\item{GO2GOAdjMatrices$GO2GOAdjMatrix}{Numeric;	Block diagonal adjacency matrix (formal class dgCMatrix from package Matrix) describing the complete directed 
 					acyclic graph (DAG) of the significant GOterms up to the root, 
-					i.e. the edges between GOterms and their parents. Dimnames of 
-					columns are specifying the ontology - BP/MF/CC.}
+					i.e. the edges between GOterms and their parents. GO2GOAdjMatrix[i,j]== 1 iff i is parent of j. First row contains numbers 1, 2, and 4 specifying the ontology BP, MF, and CC.}
 				\item{GO2GOAdjMatrices$AdjMatrixGO2GOBP}{Numeric; (non-sparse) Adjacency matrix of BP-DAG. 
 					AdjMatrixGO2GOBP[i,j]==1 iff i is parent of j.}
 				\item{GO2GOAdjMatrices$AdjMatrixGO2GOMF}{Numeric; (non-sparse) Adjacency matrix of MF-DAG. 

@@ -5,10 +5,8 @@
 Function to draw and save gene ontology DAG.
 }
 \description{
-Function draws and colours the gene ontology DAG of input GO terms depending on input parameters
-and saves it as PlotFile.PlotExt
-Function to calculate a overrepresentation analysis based on gene ontology
-using a one-sided hypergeometric test for given genes.
+Function draws and colors the gene ontology DAG of input GO terms depending on input parameters
+and saves it as PlotFile.
 }
 \usage{
 plotGOgraph(Adj,GOtermIDs,PlotFile,PlotDirectory=getwd(),

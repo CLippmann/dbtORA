@@ -53,7 +53,7 @@ InFileWithExt = "")
 }
 
 \value{
-Files saved in OutDirectory containing all the information recieved by ORA, Genes to GO terms matrix
+Files saved in OutDirectory containing all the information received by ORA, Genes to GO terms matrix
 and adjacency matrix of the GO terms.
 }
 

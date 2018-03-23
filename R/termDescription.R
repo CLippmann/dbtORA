@@ -1,9 +1,9 @@
-termDescription <- function(GOTermId){
-# TermStrings <- termDescription(GOTermId)
-# die Strings der Terme zu den GOTermIds
+termDescription <- function(GOtermId){
+# TermStrings <- termDescription(GOtermId)
+# die Strings der Terme zu den GOtermIds
 #
 # INPUT
-# GOTermId[1:n]      GO-Term IDs,       e.g  "GO:0008150"
+# GOtermId[1:n]      GO-Term IDs,       e.g  "GO:0008150"
 #
 # OUTPUT
 # GOTermDescription[1:n]        vector of   strings that denote the GO terms
@@ -16,16 +16,16 @@ termDescription <- function(GOTermId){
 #require(AnnotationDbi)
 #requireNamespace(package ='AnnotationDbi', quietly = TRUE)
 
-if(any(is.null(GOTermId)) || length(GOTermId)==0){
-	if(all(is.null(GOTermId)) || length(GOTermId)==0){
-		GOTermDescription <- rep(NULL, length(GOTermId))
+if(any(is.null(GOtermId)) || length(GOtermId)==0){
+	if(all(is.null(GOtermId)) || length(GOtermId)==0){
+		GOTermDescription <- rep(NULL, length(GOtermId))
 	}else{
-		NotNullInd <- which(!is.null(GOTermId))
-		GOTermDescription <- rep(NULL, length(GOTermId))
-		GOTermDescription[NotNullInd] <- AnnotationDbi::Term(GOTermId[NotNullInd])
+		NotNullInd <- which(!is.null(GOtermId))
+		GOTermDescription <- rep(NULL, length(GOtermId))
+		GOTermDescription[NotNullInd] <- AnnotationDbi::Term(GOtermId[NotNullInd])
 	}
 }else{
-	GOTermDescription = AnnotationDbi::Term(GOTermId)
+	GOTermDescription = AnnotationDbi::Term(GOtermId)
 }
 return(GOTermDescription)
 }

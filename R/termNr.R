@@ -1,12 +1,12 @@
-termNr <- function(GOTermId){
-# GOTermNr = termNr(GOTermId)
-# die numerischen Werte der GOTermIds errechnen 
+termNr <- function(GOtermId){
+# GOtermNr = termNr(GOtermId)
+# die numerischen Werte der GOtermIds errechnen 
 #
 # INPUT
-# GOTermId[1:n]             GOTermIDs,       e.g  "GO:0008150"
+# GOtermId[1:n]             GOTermIDs,       e.g  "GO:0008150"
 #
 # OUTPUT
-# GOTermNr[1:n]        numbers for TermIDs  e.g 8150
+# GOtermNr[1:n]        numbers for TermIDs  e.g 8150
 
 # ALU
 
@@ -14,9 +14,9 @@ termNr <- function(GOTermId){
 #-
   
 # erstmal die GO root abfangen
-AllInd = which(GOTermId=="all");
-if (length(AllInd)>0) { GOTermId[AllInd] <- "GO:0000000" } # all bekommt nummer 0
-if(is.numeric(GOTermId)){return(GOTermId)} # Falls wir schon ne Zahl haben, gehen wir davon aus, dass das die GOtermNr ist.. 
-GOTermNr = as.numeric(substr(GOTermId, 4,99));
-return(GOTermNr)
+AllInd = which(GOtermId=="all");
+if (length(AllInd)>0) { GOtermId[AllInd] <- "GO:0000000" } # all bekommt nummer 0
+if(is.numeric(GOtermId)){return(GOtermId)} # Falls wir schon ne Zahl haben, gehen wir davon aus, dass das die GOtermNr ist.. 
+GOtermNr = as.numeric(substr(GOtermId, 4,99));
+return(GOtermNr)
 } # end function termNr

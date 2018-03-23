@@ -58,8 +58,14 @@ if(!all(sapply(SumGO2GOSparseAdjMat,is.numeric))){stop('WriteORAresults: Entries
 # Jetzt ausschreiben:
 # Parameter der ORA:
 FilePlusParameter <- strsplit(FileNameWithoutExt, '_', TRUE)[[1]]
-Parameter <- paste0(FilePlusParameter[-1], collapse = ', ')
-FileN <- FilePlusParameter[1]
+# Unterstriche im Dateinamen beachten:
+if(FilePlusParameter[length(FilePlusParameter)] == "RefSet"){ # Wenn wir ein RefSet haben, haben wir einen Parameter mehr.
+	Parameter <- paste0(tail(FilePlusParameter, n = 5), collapse = ', ')
+	FileN <- paste0(head(FilePlusParameter, n = length(FilePlusParameter)-5), collapse = '_')
+}else{
+	Parameter <- paste0(tail(FilePlusParameter, n = 4), collapse = ', ')
+	FileN <- paste0(head(FilePlusParameter, n = length(FilePlusParameter)-4), collapse = '_')
+}
 
 # Zuerst die NAMES mit allen verwendeten Genen: (NCBIs, GeneSymbols und GeneDescriptions)
 ValidInputGenes <- as.numeric(dimnames(ORAresults$Genes2GOtermsMatrix)[[1]][-1])# Die GeneNCBIs sind die Zeilennamen der Genes2Terms-Matrix. In der 1.Zeile wurde eine Null ergaenzt, die muss wieder weg.

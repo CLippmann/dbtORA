@@ -1,13 +1,13 @@
-termsAncestors <- function(GOTermNr, OntologyNr){
+termsAncestors <- function(GOtermNr, OntologyNr){
 # Function returns vector of all ancestors in ontology for given GO term numbers.
 #
-# Ancestors  <- termsAncestors(GOTermNr, OntologyNr) 
+# Ancestors  <- termsAncestors(GOtermNr, OntologyNr) 
 #
 # NOTA was ist mit den Relationstypen passiert z.B regulates? 
 # eigentlich folgen wir nur part-of und is-a
 #
 # INPUT:
-# GOTermNr			Numeric; 
+# GOtermNr			Numeric; 
 #								Vector of GO term numbers.
 # OntologyNr		Numeric;
 #								To select the ontology. One of: 
@@ -19,7 +19,7 @@ termsAncestors <- function(GOTermNr, OntologyNr){
 # List of 3:
 #	Ancestors								Numeric; Unique and by number sorted GO terms that are ancestors of input GO terms.
 # TermsWithoutAncestors		Numeric; Vector of those GO terms for that no ancestors could be found.				
-#	GOterms2GOtermsMatrix 	Numeric; Sparse matrix of GO terms and ancestors.
+
 
 # AUTHOR:
 # CL 21.03.2016 (Vorlage von ALU, CL & MT: TermAncestors)
@@ -34,8 +34,8 @@ termsAncestors <- function(GOTermNr, OntologyNr){
 
 
 # Dateneingabe ueberpruefen:
-if(length(GOTermNr) <= 0){stop('termsAncestors: A non-empty vector of GO term numbers is required as input! Function stops.')}
-if(!all(is.numeric(GOTermNr))){stop('termsAncestors: GO term numbers are not numeric! Function stops.')}
+if(length(GOtermNr) <= 0){stop('termsAncestors: A non-empty vector of GO term numbers is required as input! Function stops.')}
+if(!all(is.numeric(GOtermNr))){stop('termsAncestors: GO term numbers are not numeric! Function stops.')}
 if(!is.numeric(OntologyNr)){stop('termsAncestors: OntologyNr has to be numeric: 1 (=BP), 2 (=MF) or 4 (=CC)! Function stops.')}
 
 	
@@ -58,10 +58,10 @@ switch(as.character(OntologyNr),
   
 # vorlaeufige Liste aller Vorfahren ungeordnet und mit Duplikaten erstellen:
 AncSparseNames <- termNr(AncSparseMatrix$DimNames[[1]]) # Dimnames sind GOtermIDs - umwandeln in Nummern
-GOInd <- match(GOTermNr, AncSparseNames) # Index nach dem wir ZeilenInd durchsuchen muessen -> umrechnen der GOtermNr in die Indizes, die auch in ZeilenInd und SpaltenInd verwendet werden
+GOInd <- match(GOtermNr, AncSparseNames) # Index nach dem wir ZeilenInd durchsuchen muessen -> umrechnen der GOtermNr in die Indizes, die auch in ZeilenInd und SpaltenInd verwendet werden
 NaInd <- which(is.na(GOInd)) # Terme, die nicht in der Ontologie sind oder nicht existieren (keine Annotationen haben und somit fuer uns uniteressant sind.)
 NotNaInd <- which(!is.na(GOInd)) # Terme, die existieren
-TermeOhneEltern <- GOTermNr[NaInd] # da wo bei match NA rauskommt, koennen wir keine Eltern finden
+TermeOhneEltern <- GOtermNr[NaInd] # da wo bei match NA rauskommt, koennen wir keine Eltern finden
 # GOIndOhneNa <- GOInd[-NaInd] # aber dann stehn die Terme nicht mehr an der richtigen stelle... iwie merken... 
 
 # Welche ZeilenInds stimmen mit GOInds (ohne NAs) ueberein?

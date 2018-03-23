@@ -69,7 +69,7 @@ CL
 }
 
 \seealso{
-For further details about ORAresults, please see \code{\link{ORA}}}.
+For further details about ORAresults, please see \code{\link{ORA}}.}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

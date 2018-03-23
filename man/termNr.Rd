@@ -7,16 +7,16 @@ Casts GO-term IDs to GO-term numbers.
 Casts GO-term IDs to GO-term numbers.
 }
 \usage{
-termNr(GOTermId)
+termNr(GOtermId)
 }
 \arguments{
-  \item{GOTermId}{
+  \item{GOtermId}{
 Vector\code{[1:n]} of GO-term IDs, e.g. \code{"GO:0008150"} (string).
 }
 }
 
 \value{
-\item{GOTermNr}{
+\item{GOtermNr}{
 Vector\code{[1:n]} of GO-term numbers, e.g. \code{8150} (numeric!).
 }}
 

@@ -44,9 +44,8 @@ If the expected number of genes annotated to one GO term is less than
 ObservedNrOfAnnsInTerm, the log-p-value will be log(P(X>=ObservedNrOfAnnsInTerm)) 
 where X is the hypergeometric distributed random variable. 
 If the expected number of genes annotated to one GO term is greater than 
-ObservedNrOfAnnsInTerm, thelog-p-value will be log(P(X<=ObservedNrOfAnnsInTerm)) 
+ObservedNrOfAnnsInTerm, thelog-p-value will be log(P(X<ObservedNrOfAnnsInTerm)) 
 where X is the hypergeometric distributed random variable.
-NOTE: In both cases the case P(X==ObservedNrOfAnnsInTerm) is included!
 }
 \value{
 %%  ~Describe the value returned

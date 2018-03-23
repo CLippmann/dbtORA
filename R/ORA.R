@@ -38,7 +38,7 @@ ORA <- function(NCBIs, Correction = 'BON', PvalueThreshold = 0.05, MinNrOfGenes 
 		# LRNresults$ExpNrOfAnnsInTerm			Numeric; Statistically expected number of genes annotated to GO term. 
 		# LRNresults$ObservedNrOfAnnsInTerm	Numeric; Empirically observed number of genes annotated to GO term.
 		# LRNresults$RelDiff								Numeric; Relative difference of expected and observed in percent.
-		# LRNresults$Pvalue									Numeric; Pvalues for each GO term recieved by statistical test.
+		# LRNresults$Pvalue									Numeric; Pvalues for each GO term received by statistical test.
 		# LRNresults$LogPvalue							Numeric; log(Pvalues). 
 		# LRNresults$Certainty							Numeric; Certainty value. See function certainty. 
 		# LRNresults$InfoValue							Numeric; Value describing partial Shannon information. See infoValue.
@@ -206,8 +206,8 @@ Up <- as.numeric(ObservedNrOfAnnsInTerm > ExpNrOfAnnsInTerm) # if(e[i] < o[i])->
 ######################################################
 # PvaluesThreshold beruecksichtigen:
 IsRelevantPval <- AdjustedPvals <= PvalueThreshold #Boolean-Vektor welche P-Values kleiner als Pvalue-Schranke sind
-GOTermId <- termId(GOtermNrs)[IsRelevantPval]  
-GOtermNr <- termNr(GOTermId)
+GOtermId <- termId(GOtermNrs)[IsRelevantPval]  
+GOtermNr <- termNr(GOtermId)
 NrOfAnnotationsInTerm <- NrOfAnnotationsInTerm[IsRelevantPval]
 Up <- Up[IsRelevantPval]
 ExpNrOfAnnsInTerm <- ExpNrOfAnnsInTerm[IsRelevantPval]
@@ -243,7 +243,7 @@ TermIndex <- match(terme, GOtermNr) # SpaltenInd der sparse Matrix
 Genes2GOtermsMatrix <- matrix(0, length(ValidInputGenes)+1, length(GOtermNr))
 Genes2GOtermsMatrix[cbind(GenIndex+1, TermIndex)] <- 1
 Genes2GOtermsMatrix[1, ] <- GOtermNr
-SpaltenNames <- gsub("[^[:alnum:]]","_",termDescription(GOTermId))
+SpaltenNames <- gsub("[^[:alnum:]]","_",termDescription(GOtermId))
 dimnames(Genes2GOtermsMatrix) <- list(c('0',ValidInputGenes), SpaltenNames)
 
 ######################################################
@@ -393,7 +393,7 @@ return(ORAresults = list(
 														GOtermId = termId(GOtermNr[Reihenfolge])),
 					# Infos fuer Genes2GOtermsSparseMatrix:
 					Genes2GOtermsMatrix = Genes2GOtermsMatrix[,Reihenfolge, drop = FALSE],
-					# Infos fuer GO2GOSparseAdjMatrix:
-					GO2GOAdjMatrices = list(GO2GOSparseAdjMatrix=GO2GOSparseAdjMatrix, AdjMatrixGO2GOBP=AdjMatrixGO2GOBP, AdjMatrixGO2GOMF=AdjMatrixGO2GOMF, AdjMatrixGO2GOCC=AdjMatrixGO2GOCC)
+					# Infos fuer GO2GOAdjMatrix:
+					GO2GOAdjMatrices = list(GO2GOAdjMatrix=GO2GOSparseAdjMatrix, AdjMatrixGO2GOBP=AdjMatrixGO2GOBP, AdjMatrixGO2GOMF=AdjMatrixGO2GOMF, AdjMatrixGO2GOCC=AdjMatrixGO2GOCC)
 				))#end return
 }# end function ORA

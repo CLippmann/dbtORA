@@ -68,7 +68,7 @@ FileName <- paste0('GOAall.lrn')
 TempMatrix <- cbind(as.numeric(NCBIs), termNr(GOTerme), EvidenceCode2Key(Evidence), OntoName2No(OntologyName))
 temp2 <- sortby(TempMatrix, 2)
 Data <- sortby(temp2, 1)
-Header <- c('Key',	'AnnNCBI',	'GOTermNo',	'EvidenceKey',	'OntologyNo')
+Header <- c('Key',	'AnnNCBI',	'GOtermNr',	'EvidenceKey',	'OntologyNo')
 Comments <- paste0('This file contains infos from "org.Hs.egGO2ALLEGS". \n# From the documentation of the package:\n# org.Hs.egGO2ALLEGS is an R object that provides mappings between a given GO identifier and\n# all of the Entrez Gene identifiers annotated at that GO term OR TO ONE OF ITS CHILD NODES\n# in the GO ontology. Thus, this mapping is much larger and more inclusive than org.Hs.egGO2EG.\n# Last update: ', Sys.Date(),'.')
 # WriteLRN(FileName,Data,Header,Key,DataDefined,OutDirectory,CommentOrDigits);
 suppressWarnings(WriteLRN(FileName,Data,Header,Key,c(),OutDirectory,Comments));
@@ -85,7 +85,7 @@ print('1/18 done.')
 ## AdjCCsparseMatrix.lrn und ~.names######################################################
 ##########################################################################################
 # Zuerst sortieren wir mal die Liste nach ihren Namen (also den GO-Termen):
-n <- termNr(names(CCchildren)) # Wir nehmen termNo, damit wir 1,2,3.. und nicht 1,10,111,... sortieren
+n <- termNr(names(CCchildren)) # Wir nehmen termNr, damit wir 1,2,3.. und nicht 1,10,111,... sortieren
 o <- order(n)
 orderedTerms <- n[o]
 CClistSort <- CCchildren[o]

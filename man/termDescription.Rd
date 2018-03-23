@@ -7,10 +7,10 @@ Yields description of inputtet GO-term.
 Yields description of inputtet GO-term ID.
 }
 \usage{
-termDescription(GOTermId)
+termDescription(GOtermId)
 }
 \arguments{
-  \item{GOTermId}{
+  \item{GOtermId}{
 Vector\code{[1:n]} of GO-term IDs, e.g. \code{"GO:0008150"}.
 }
 }

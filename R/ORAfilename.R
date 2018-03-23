@@ -47,7 +47,12 @@ WithRefSet = FALSE){
 # requireNamespace('utils')
 
 # Wir muessen die Dateiendung entfernen, sofern gegeben, und Parameter anfuegen.
-OutFileWithoutExt <- basename(tools::file_path_sans_ext(OutFile))
+# Punkte im Dateinamen zulassen, falls es nicht die Punkte vor den folgenden Endungen sind:
+if(tools::file_ext(OutFile)%in% c('pdf', 'png', 'names', 'lrn', 'eps', 'txt')){
+	OutFileWithoutExt <- basename(tools::file_path_sans_ext(OutFile))
+}else{
+	OutFileWithoutExt <- OutFile
+}
 OutFileWithoutExt <- paste0(OutFileWithoutExt, 'Genes', NrOfValidInputGenes)
 OutFilePlusParams <- paste(OutFileWithoutExt, Correction, PvalueThreshold, MinNrOfGenes, sep='_')
 if(OnlyManuCur){

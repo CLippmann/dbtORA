@@ -1,0 +1,1356 @@
+---
+title: "dbtORA: R package for extended Overrepresentation Analysis for Knowledge Discovery"
+author: "Catharina Lippmann, Michael Thrun, Alfred Ultsch and Jörn Lötsch."
+date: "20.03.2018"
+output: 
+ html_document:
+  toc: true
+  toc_float: true
+  theme: "spacelab"
+  highlight: "tango"
+vignette: >
+  %\VignetteIndexEntry{dbtORA: R package for extended Overrepresentation Analysis for Knowledge Discovery}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+***
+
+***
+
+### adjMatrixTermsAncestors {#adjMatrixTermsAncestors}
+
+**Description:**  
+Function to return the adjacency matrix of input GO term numbers in specified ontology.
+
+**Usage:**  
+`adjMatrixTermsAncestors(GOtermNrInclAncestors, OntologyNr = 1)`
+
+**Input parameters:**  
+
+* `GOtermNrInclAncestors`:  
+Numeric; 
+Vector of GO term numbers of GO terms and their 
+ancestors up to the root in gene ontology specified 
+by `OntologyNr`.
+
+* `OntologyNr`:  
+Numeric; Default: `1`  
+To select the ontology choose one of: 
+`1` for biological process, 
+`2` for molecular function or 
+`4` for cellular component.
+
+
+**Output parameters:**  
+
+* `AdjMatrix`:  
+Numeric;
+Adjacency matrix of GOtermNrInclAncestors. 
+`AdjMatrix[i,j] == 1` iff GO term `i` is parent of 
+GO term `j`. Named by GOtermIds.
+* `GOtermNrs`:  
+Numeric;
+The GO term numbers corresponding to rows and columns
+of AdjMatrix.
+
+**Author:**  
+CL  
+
+
+**See also:**  
+[`termsAncestors`](#termsAncestors).
+
+
+**Example:**  
+```
+OntologyNr <- 1  
+GOtermNrInclAncestors <- termsAncestors(16310, OntologyNr)$Ancestors  
+adjMatrixTermsAncestors(GOtermNrInclAncestors, OntologyNr = OntologyNr)  
+```
+
+
+***
+
+### certainty {#certainty}
+
+**Description:**  
+Function to calculate the certainty for a GO term, i.e. 
+the probability that there is no term with a smaller p-value than the p-value of the considered GO term in the given 
+GO subtree.  
+
+**Usage:**  
+certainty(Pvalues)
+
+**Input parameters:**  
+
+* Pvalues:  
+Numeric;
+P-values of the GO terms.  
+
+**Output parameters:**  
+
+* Certainty:  
+Numeric;
+Empiric probability that there is no term with a smaller p-value in the given GO subtree.  
+
+
+**Author:**  
+CL  
+
+**See also:**  
+
+[`infoValue`](#infoValue), 
+[`importance`](#importance), 
+[`remarkableness`](#remarkableness).
+
+
+**Example:**  
+```
+Pvalues <- runif(10,0,1)
+certainty(Pvalues)
+```
+
+***
+
+### checkORAparameters {#checkORAparameters}
+
+**Description:**  
+Internal function to check if the parameters passed to `dbtORA` are correct.
+
+**Usage:**  
+`checkORAparameters(InFileWithExt, InFileDirectory, RefSetFileWithExt,
+RefSetDirectory, OutFile, OutFileDirectory, Correction, PvalueThreshold,
+MinNrOfGenes, OnlyManuCur, drawDAG, MarkDetails, MarkHeadlines, PlotExt)`
+
+**Input parameters:**  
+
+  * `InFileWithExt`:  
+String; 
+Filename with extension where NCBIs are keys (for `*.names` and `*.lrn` files)
+or the only column (for `*.txt` files).
+  * `InFileDirectory`:  
+String;
+Directory where `InFileWithExt` can be found.
+  * `RefSetFileWithExt`:   
+String;
+Filename with extension where NCBIs are keys (for `*.names` and `*.lrn` files)
+or the only column (for `*.txt` files). NCBIs will be used as reference set.
+  * `RefSetDirectory`:  
+String;
+Directory where `RefSetFileWithExt` with reference NCBIs can be found.
+
+  * `OutFile`:  
+String;
+Filename of the output file(s). Will be complemented by the parameters of the ORA.
+
+  * `OutFileDirectory`:  
+String;
+Directory where results of ORA and DAGs will be saved.
+
+  * `Correction`:  
+String;
+Type of correction for mulitple testing of the p-values.
+`'BON'` for Bonferroni, 
+`'FDR'` for False Discovery Rate,
+`'RAW'` if no correction should be done.
+  * `PvalueThreshold`:  
+Numeric;
+P-value threshold. GO-Terms with p-values greater than `PvalueThreshold` will be ignored.
+
+  * `MinNrOfGenes`:  
+Numeric;
+Minimum number of genes annotated to one Term that is accepted. Only GO-Terms with more than
+`MinNrOfGenes` annotated genes will be considered in calculation.
+
+  * `OnlyManuCur`:  
+Boolean;
+Set `TRUE` if only manually curated gene annotations should be considered.
+
+  * `drawDAG`:  
+Boolean;
+Set `TRUE` if directed acyclic graphs (DAGs) should be drawn.
+If `drawDAG` is set to `FALSE`, the parameters `MarkDetails`, `MarkHeadlines` and `PlotExt` will be
+ignored.
+
+  * `MarkDetails`:  
+Boolean;
+Set `TRUE` if details of the DAG should be marked in blue colour.
+
+  * `MarkHeadlines`:  
+Boolean;
+Set `TRUE` if headlines of the DAG should be marked in yellow colour.
+
+  * `PlotExt`:  
+String;
+Extension of the plotfile showing the DAG. One of `'pdf'` , `'eps'` or `'png'`.  
+
+
+**Author:**  
+CL  
+
+**See also:**  
+[`dbtORA`](#dbtORA).  
+
+
+***
+
+### dbtORA {#dbtORA}
+
+**Description:**  
+Convenient wrapper function to perform an overrepresentation analysis (ORA) including the drawing of the directed acyclic graphs (DAGs)
+of the resulting GO terms.
+
+**Usage:**  
+`dbtORA(InFileWithExt, PvalueThreshold = 0.05, Correction = "BON", OnlyManuCur = TRUE, 
+MinNrOfGenes = 2, InFileDirectory = getwd(), OutFile = InFileWithExt, 
+OutFileDirectory = InFileDirectory, RefSetFileWithExt = NULL, 
+RefSetDirectory = InFileDirectory, drawDAG = TRUE, MarkDetails = TRUE, 
+MarkHeadlines = TRUE, PlotExt = "png")`  
+
+**Input parameters:**  
+
+  * `InFileWithExt`:  
+String; 
+Filename with extension where NCBIs are keys (for *.names and *.lrn files)
+or the only column (for *.txt files). If not given function will ask interactively.
+  * `PvalueThreshold`:  
+Numeric; Default: `0.05`  
+P-value threshold. GO terms with p-values greater than `PvalueThreshold` will be ignored.
+  * `Correction`:  
+String; Default: `'BON'`.  
+Type of correction for mulitple testing of the p-values.
+`'BON'` for Bonferroni, 
+`'FDR'` for False Discovery Rate,
+`'RAW'` if no correction should be done.
+  * `OnlyManuCur`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if only manually curated gene annotations should be considered.
+  * `MinNrOfGenes`:  
+Numeric; Default: `2`.
+Minimum number of genes annotated to one term that is accepted. Only GO terms with more than
+`MinNrOfGenes` annotated genes will be considered in calculation.
+
+* `InFileDirectory`:  
+String; Default: current directory `getwd()`.  
+Directory where `InFileWithExt` can be found. If `InFileWithExt` not given, function will ask interactively.
+  * `OutFile`:  
+String; Default: `InFileWithExt` (extension will be adjusted).  
+Filename of the output file(s). Will be complemented by the parameters of the ORA.
+  * `OutFileDirectory`:  
+String; Default: `InFileDirectory`.  
+Directory where results of ORA and DAGs will be saved.
+  * `RefSetFileWithExt`:  
+String; Default: `NULL`.  
+Filename with extension where NCBIs are keys (for `*.names` and `*.lrn` files)
+or the only column (for `*.txt` files). NCBIs will be used as reference set.
+  * `RefSetDirectory`:  
+String; Default: `InFileDirectory`.  
+Directory where `RefSetFileWithExt` with reference NCBIs can be found.
+  * `drawDAG`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if DAGs should be drawn.
+If `drawDAG` is set to `FALSE`, the parameters `MarkDetails`, `MarkHeadlines` and `PlotExt` will be
+ignored.
+  * `MarkDetails`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if details of the DAG should be marked in blue colour.
+  * `MarkHeadlines`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if headlines of the DAG should be marked in yellow colour.
+  * `PlotExt`:  
+String; Default: `'png'`.   
+Extension of the plotfile showing the DAG. One of `'pdf'`, `'eps'` or `'png'`.
+
+**Details:**  
+Wrapper function to execute mainly `ORA` and `drawORA`.  
+	
+\newline
+	
+Coloring of the nodes and its meaning:  
+Red - Significantly overrepresented nodes;   
+Green - Significantly underrepresented nodes;  
+White - Terms that are important for DAG structure but do not have a
+significant p-value.   
+Yellow - If `MarkHeadlines = TRUE`, the significant(!) nodes with highest remarkable value
+in each path from a detail to the root, the so called headlines, get a yellow filling. The 
+margin indicates over- or underrepesentation by its red or green color.  
+Blue - If `MarkDetails = TRUE`, the details of the DAG will be colored in blue. 
+The margin again indicates over- or underrepesentation by its red or green color.
+If `MarkHeadlines` and `MarkDetails` are `TRUE`, there might be nodes that are
+both headlines and details. In this case the nodes have a margin according to
+over- or underrepesentation in red or green and are filled in yellow like all
+headlines. Additionally the writing is blue to indicate that this node is a detail.
+
+\newline
+
+To read the output files you can simply use any text editor. If you would like to use the results for further calculations
+it is recommended to install the [`DataIO`](https://github.com/aultsch/DataIO) package from GitHub. There you can find
+functions to read and write `*.lrn` and `*.names`-files easily in your R console.
+
+
+
+**Output parameters:**  
+Nine files:  
+
+* *`[InFileWithoutExt]`*`Genes`*`[XXX]`*`.names`:  
+A copy of the original input file (without extension) containing the *`XXX`* valid genes, filename extended with `Genes` and number of valid genes, i.e. the genes that have at least one
+ (manually curated (if `OnlyManuCur = TRUE`)) annotation to a term in GO.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur]`*_BP.*`[PlotExt]`*:  
+DAG of the significant terms from biological process DAG of GO.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur]`*_MF.*`[PlotExt]`*:	 
+DAG of the significant terms from molecular function DAG of GO.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur]`*_CC.*`[PlotExt]`*:  
+DAG of the significant terms from cellular component DAG of GO.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur][YYY]`*`Terms.lrn`:  
+Contains the *`YYY`* significant terms and all numeric results for each term like p-value, remarkableness, number of annotations, isHeadline and so on. For detailed explanation see documentation of [`ORA`](#oRA).
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur][YYY]`*`Terms.names`:  
+Contains the textual results, i.e. term id and term description, of the *`YYY`* significant terms.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur]`*`Genes2GOterms`*`[XXX]`*`x`*`[YYY]`*`.lrn`:  
+Adjacency matrix of the (valid) genes from input gene set and the *`YYY`* significant output terms. If an entry `[i,j] == 1`, the gene in row `i` is annotated to the term in column `j`.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur]`*`GOterms2GOterms`*`[ZZZ]`*`x`*`[ZZZ]`*`.lrn`:  
+Adjacency matrix of all *`YYY`* significant terms and *`ZZZ-YYY`* additional terms that are needed to draw the three DAGs. This Matrix represents the DAGs' structure in the form that an 
+entry `[i,j]==1` if the term in row `i` is parent of the term in column `j`. In the first row the DAG the terms in the columns belong to is specified: `1` for biological process (BP), `2` for molecular function (MF) and
+`4` for cellular component.
+* *`[OutFile]`*\_*`[Correction]`*\_*`[PvalueThreshold]`*\_*`[MinNrOfGenes]`*\_*`[OnlyManuCur]`*`GOterms`*`[ZZZ]`*`.names`:  
+Contains the textual description, i.e. term id and term description, for the *`ZZZ`* terms.  
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`ORA`](#oRA),
+[`drawORA`](#drawORA).
+
+
+**Example:**  
+For this example 30 randomly drawn genes were used. Therefore, the p-value threshold needs to be set to `1` as there won't be
+any significant terms for the default threshold of 5% - which is exactly what had to be expected for a random set of genes.
+```
+dbtORA(InFileWithExt = 'ExampleNCBInamesFile.names', PvalueThreshold = 1, Correction = "BON", OnlyManuCur = TRUE, MinNrOfGenes = 2, InFileDirectory = system.file('extdata', package = 'ORA'), OutFile = 'ExampleNCBInamesFile', OutFileDirectory = getwd(), RefSetFileWithExt = NULL, RefSetDirectory = getwd(), drawDAG = TRUE, MarkDetails = TRUE, MarkHeadlines = TRUE, PlotExt = "png")
+```
+
+This yields to the following output and a warning, as `OnlyManuCur = TRUE` and two genes are not manually curated (but only automatically), i.e. they are ignored for analysis:   
+```
+[1] "........................................"
+[1] "ORA: summary"
+[1] "Number of genes in test set: 28"
+[1] "Number of genes in universe/reference set: 17656"
+[1] "Number of p-values: 453"
+[1] "Number of adjusted p-values: 453"
+dot: graph is too large for cairo-renderer bitmaps. Scaling by 0.988894 to fit
+[1] "plotGOgraph: png-File named \"ExampleNCBInamesFileGenes28_BON_1_2_MANU_BP.png\" saved in [OutFileDirectory]"
+[1] "plotGOgraph: png-File named \"ExampleNCBInamesFileGenes28_BON_1_2_MANU_MF.png\" saved in [OutFileDirectory]"
+[1] "plotGOgraph: png-File named \"ExampleNCBInamesFileGenes28_BON_1_2_MANU_CC.png\" saved in [OutFileDirectory]"
+Warning message:
+In dbtORA(InFileWithExt = "ExampleNCBInamesFile.names", PvalueThreshold = 1,:  
+dbtORA: 2 input gene(s) were not used. There might be duplicates in input genes or some input genes are not annotated to any GO term. 
+For analysis used genes can be found in ExampleNCBInamesFileGenes28.names in [OutFileDirectory].
+```
+
+
+***
+
+### drawORA {#drawORA}
+
+**Description:**  
+To draw the gene ontology DAG containing ORA results information.
+Prepares data for [`plotGOgraph`](#plotGOgraph) which does the actual plotting.
+
+**Usage:**  
+`drawORA(ORAresults, PlotFileWithExt, PlotDirectory, MarkDetails = TRUE, MarkHeadlines = TRUE, Overwrite = TRUE)`
+
+**Input parameters:** 
+ 
+* `ORAresults`:  
+List of 4:  
+	* `LRNresults`: List of 16:  
+Information needed to generate the lrn file containing all the calculated values for
+the GO terms found to be significant for input genes.  
+	* `NAMESresults`: List of 3:  
+Information needed to generate the names file containing information about GO terms.  
+	* `Genes2GOtermsSparseMatrix`:  
+Numeric; Sparse matrix explaining the connection of genes and GO terms. 
+`Genes2GOtermsSparseMatrix[i,3]==1`	iff gene in `[i,1]` is annotated to 
+GO term in `[i,2]`.  
+	* `GO2GOAdjMatrices`: List of 4:  
+Adjacency matrices for each ontology and combined sparse matrix.  
+* `PlotFileWithExt`:  
+String; Default `'png'`.  
+Name of the file that should be drawn with extension.
+Extension can be one of `'png'`, `'eps'` or `'pdf'`.
+* `PlotDirectory`:  
+String; Default: current directory.  
+Directory where `PlotFileWithExt` should be saved.
+* `MarkDetails`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if details of DAG should be marked in blue colour.
+* `MarkHeadlines`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if headlines should be marked in yellow colour in DAG.
+* `Overwrite`:
+Boolean; Default: `TRUE`.  
+Set `TRUE` if existing files with the same name should be overwritten.
+
+
+**Details:**  
+Function requires the freely available visualization software GraphViz ([website](http://www.graphviz.org), [publication](https://s3.amazonaws.com/academia.edu.documents/5321143/10.1.1.106.5621.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1521459651&Signature=%2FF6eJ%2BtEUWoKeAzwZd4GmlyJQCk%3D&response-content-disposition=inline%3B%20filename%3DAn_open_graph_visualization_system_and_i.pdf)).  
+
+\newline
+
+Coloring of the nodes and its meaning:  
+Red - Significantly overrepresented nodes;   
+Green - Significantly underrepresented nodes;  
+White - Terms that are important for DAG structure but do not have a
+significant p-value.   
+Yellow - If `MarkHeadlines = TRUE`, the significant(!) nodes with highest remarkable value
+in each path from a detail to the root, the so called headlines, get a yellow filling. The 
+margin indicates over- or underrepesentation by its red or green color.  
+Blue - If `MarkDetails = TRUE`, the details of the DAG will be colored in blue. 
+The margin again indicates over- or underrepesentation by its red or green color.
+If `MarkHeadlines` and `MarkDetails` are `TRUE`, there might be nodes that are
+both headlines and details. In this case the nodes have a margin according to
+over- or underrepesentation in red or green and are filled in yellow like all
+headlines. Additionally the writing is blue to indicate that this node is a detail.
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+For further details about ORAresults, please see [`ORA`](#oRA).
+
+
+**Example:**  
+For this example, the random set of 30 genes from `ExampleNCBInamesFile.names` in `system.file('extdata', package = 'ORA')` is used. As the genes are randomly drawn the p-value threshold had to be set to `1`.  
+
+For further documentation for function `ReadNAMES`, package [`DataIO`](https://github.com/aultsch/DataIO) from GitHub is recommended.
+```
+# NCBIs <- ReadNAMES('ExampleNCBInamesFile.names', system.file('extdata', package = 'ORA'))$Key
+NCBIs <- c(8402, 6199, 72, 387254, 10083, 170370, 25921, 9324, 7305, 6675, 2, 3224, 90342, 20, 121340, 89792, 83998, 140469, 5005, 7398, 26575, 53826, 5024, 50618, 3061, 51176, 7903, 90529, 28316, 6406)
+ORAresults <- ORA(NCBIs, Correction = "BON", PvalueThreshold = 1, MinNrOfGenes = 2, OnlyManuCur = FALSE, RefSet = NULL, GOAall = ReadLRN("GOAall.lrn", system.file("extdata",package = "ORA")))
+PlotFileWithExt <- 'Example4Vignette.png'
+PlotDirectory <- getwd()
+drawORA(ORAresults, PlotFileWithExt, PlotDirectory, MarkDetails = TRUE, MarkHeadlines = TRUE, Overwrite = TRUE)
+```
+
+***
+
+### GOroot2TermPaths {#GOroot2TermPaths}
+
+**Description:**  
+Function to get all paths from the gene ontology root of the DAG to one target term.
+
+**Usage:**  
+`GOroot2TermPaths(TargetTerm, AdjMatrix, GOtermNr, GOroot = 8150)`
+
+**Input parameters:**  
+
+  * `TargetTerm`:  
+Numeric; GO term number of the term that the paths should be found for.
+  * `AdjMatrix`:  
+Numeric; Adjacency matrix of (only) all ancestors of TargetTerm and TargetTerm itself.
+`AdjMatrix[i,j] == 1` iff there exists an edge in GO-DAG from node `i` to node `j` (`i` is parent of `j`).
+  * `GOtermNr`:  
+Numeric; Vector of GO term numbers corresponding to rows and columns of AdjMatrix.
+Has to contain TargetTerm.
+  * `GOroot`:  
+Numeric; Default = `8150`.  
+The GO term number of the root of the ontology in which the target term 
+and all `GOtermNr`s are. One of:  
+`8150` for biological process, 
+`3674` for molecular function or 
+`5575` for cellular component.
+
+
+**Output parameters:**  
+
+* `Taxonomy`:  
+Numeric; A list of indices such that `GOtermNr[Taxonomy[[i]]]` is the `i`-th path from `GOroot` to `TargetTerm`.
+
+
+**Author:**  
+CL
+
+**See also:**  
+[`termsAncestors`](# termsAncestors), 
+[`adjMatrixTermsAncestors`](# adjMatrixTermsAncestors).
+
+**Example:**  
+```
+OntologyNr <- 1 # for biological process
+TargetTerm <- 6796
+Ancestors <- termsAncestors(GOtermNr = 6796, OntologyNr)$Ancestors
+AdjMatrixAndTermNrs <- adjMatrixTermsAncestors(GOtermNrInclAncestors = c(TargetTerm, Ancestors), OntologyNr)
+GOroot2TermPaths(TargetTerm = TargetTerm, AdjMatrix = AdjMatrixAndTermNrs$AdjMatrix, GOtermNr = AdjMatrixAndTermNrs$GOtermNrs, GOroot = 8150)
+```
+
+
+***
+
+### hypergeoTest {#hypergeoTest}
+
+**Description:**  
+Function to do a one-sided hypergeometric test, i.e. calculate the probability to draw more or less 
+(expectation value smaller than observed number of successes respectively expectation value greater 
+than observed number of successes) than a certain number of successes (`ObservedNrOfAnnsInTerm`) in a 
+fixed number of draws (`NrOfGenesInSample`), without replacement, from a finite population of fixed 
+size (`NrOfGenesInUniverse`) that contains a known number of successes (`NrOfAnnotationsInTerm`), wherein 
+each draw is either a success or a failure.
+
+**Usage:**  
+`hypergeoTest(ObservedNrOfAnnsInTerm, NrOfAnnotationsInTerm, NrOfGenesInSample, NrOfGenesInUniverse, LogPvalues = TRUE)`
+
+**Input parameters:**  
+
+  * `ObservedNrOfAnnsInTerm`:  
+Numeric; Vector of observed numbers of input genes annotated to one GO term. 
+  * `NrOfAnnotationsInTerm`:  
+Numeric; Vector of numbers of all genes annotated to one GO term.
+  * `NrOfGenesInSample`:  
+Numeric; The number of input genes (genes of interest in sample) annotated to 
+at least one GO term.
+  * `NrOfGenesInUniverse`:  
+Numeric; The number of genes in universe, i.e. all genes annotated to at 
+least one GO term.
+  * `LogPvalues`:  
+Boolean; Default: `TRUE`.  
+Set `TRUE` if `log(p-values)` should be calculated. Set `FALSE` if non-transformed p-values should be returned.
+
+
+**Details:**  
+Wrapper for [`phyper`](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Hypergeometric.html).
+Hypergeometric test is done one-sided depending on `ExpectedNrOfAnnsInTerm`: 
+If the expected number of genes annotated to one GO term is less than 
+`ObservedNrOfAnnsInTerm`, the log-p-value will be `log(P(X>=ObservedNrOfAnnsInTerm))` 
+where `X` is the hypergeometric distributed random variable. 
+If the expected number of genes annotated to one GO term is greater than 
+`ObservedNrOfAnnsInTerm`, the log-p-value will be `log(P(X<ObservedNrOfAnnsInTerm)) `
+where `X` is the hypergeometric distributed random variable.
+
+
+**Output parameters:**  
+
+* LogPvalues:  
+Numeric; Vector of log-p-values (if `LogPvalues = TRUE`; else vector of p-values) of one-sided hypergeometric test.
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`phyper`](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Hypergeometric.html).
+
+
+**Example:**  
+```
+ObservedNrOfAnnsInTerm <- 17
+NrOfAnnotationsInTerm <- 30
+NrOfGenesInSample <- 500
+NrOfGenesInUniverse <- 17656
+hypergeoTest(ObservedNrOfAnnsInTerm, NrOfAnnotationsInTerm, NrOfGenesInSample, NrOfGenesInUniverse, LogPvalues = TRUE)
+hypergeoTest(ObservedNrOfAnnsInTerm, NrOfAnnotationsInTerm, NrOfGenesInSample, NrOfGenesInUniverse, LogPvalues = FALSE)
+```
+
+
+***
+
+### importance {#importance}
+
+**Description:**  
+Function to calculate the importance for given information values and certainty values for GO terms, i.e. the minimum of both.
+
+**Usage:**  
+`importance(Certainty, InfoValue)`
+
+**Input parameters:**  
+
+  * `Certainty`:  
+Numeric; Values between `0` and `100`.  
+Vector of certainty values for GO terms. See [`certainty`](#certainty).
+  * `InfoValue`:  
+Numeric; Values between `0` and `100`.  
+Vector of (partial Shannon) information values for GO terms. 
+See [`infoValue`](#infoValue).
+
+
+**Output parameters:**  
+
+* `Importance`:  
+Numeric; Values between `0` and `100`.
+Vector of importance value based on `InfoValue` and `Certainty`.
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`certainty`](#certainty), 
+[`infoValue`](#infoValue), 
+[`remarkableness`](#remarkableness).
+
+
+**Example:**  
+```
+Certainty <- c(30, 60, 70, 90)
+InfoValue <- c(80, 70, 20, 70)
+importance(Certainty, InfoValue)
+```
+
+***
+
+### infoValue {#infoValue}
+
+
+**Description:**  
+Function calculates the partial Shannon information of gene sets in GO terms
+explaining how informative a certain term in the context of all terms is.
+
+**Usage:**  
+`infoValue(NrOfAnnotationsInTerm, NrOfGenesInUniverse = max(NrOfAnnotationsInTerm))`
+
+**Input parameters:**  
+
+  * `NrOfAnnotationsInTerm`:  
+Numeric; Vector of numbers of genes annotated to corresponding GO terms.
+  * `NrOfGenesInUniverse`:  
+Numeric; Default: `max(NrOfAnnotationsInTerm)`.  
+Number of genes in universe. (If not restricted to reference set, `NrOfGenesInUniverse`
+is the same as the number of genes (directly + indirectly) annotated to the root.)
+
+
+**Output parameters:**  
+
+* `InfoValue`:  
+Numeric; A value for each term that describes how informative that term is.
+* `InfoValueP`:  
+Numeric; The ratio of `NrOfAnnotationsInTerm/NrOfGenesInUniverse` for each term which is
+the empirical probability of occurrence.
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`certainty`](#certainty), 
+[`importance`](importance), 
+[`remarkableness`](#remarkableness).
+
+
+**Example:**  
+```
+NrOfAnnotationsInTerm <- 30
+NrOfGenesInUniverse <- 17656
+infoValue(NrOfAnnotationsInTerm, NrOfGenesInUniverse)
+```
+
+
+***
+
+### NCBI2GeneName {#NCBI2GeneName}
+
+
+**Description:**  
+Function to get GeneSymbol and GeneName for given NCBI numbers from `'AllAnnNCBIsPlusGeneName.names'` in `system.file('extdata',package='ORA')`.
+
+**Usage:**  
+`NCBI2GeneName(NCBI)`
+
+**Input parameters:**  
+
+  * `NCBI`:  
+Numeric, vector of NCBI numbers (e.g. `1`).
+
+
+**Output parameters:**  
+
+* `GeneSymbol`:  
+String, vector of same length as NCBI containing abbreviation
+of GeneName (e.g. `A1BG`).
+* `GeneName`:  
+String, vector of same length as NCBI containing detailed
+description of the gene (e.g. `alpha-1-B glycoprotein`).
+
+
+**Author:**  
+CL
+
+
+**Example:**  
+```
+NCBI2GeneName(NCBI = c(1,12, 1857))
+```
+
+
+***
+
+### ontologyNr {#ontologyNr}
+
+
+**Description:**  
+Returns for given GOterm (as ID or number) the corresponding gene ontology as number, where 
+`1` codes for biological process, 
+`2` for molecular function and 
+`4` for cellular component. 
+If the result is `0`, something went wrong.  
+
+**Usage:**  
+`ontologyNr(GOtermNrOrId, Verbose = FALSE)`
+
+
+**Input parameters:**  
+
+* `GOtermNrOrId`:  
+String; Vector of GOtermIds (like `'GO:0008150'`) OR Numeric vector of GOterm numbers (like `8150`).
+* `Verbose`:  
+Boolean; Default: FALSE.  
+If `TRUE`, function prints information in GUI window. 
+
+
+**Output parameters:**  
+
+* `OntoNumber`:  
+Numeric; Vector indicating the Gene Ontology that the GOterm belongs to. `1` codes for biological process, 
+`2` for molecular function and `4` for cellular component. 
+
+
+**Author:**  
+CL
+
+
+**Example:**  
+```
+ontologyNr(c(8150, 15774, 5776, 4582))
+```
+
+
+
+***
+
+### ORA {#oRA}
+
+**Description:**  
+Main function to calculate the overrepresentation analysis based on gene ontology
+using a one-sided hypergeometric test for given genes. For more convenient wrapper
+function see [`dbtORA`](#dbtORA).
+
+**Usage:**  
+`ORA(NCBIs, Correction = "BON", PvalueThreshold = 0.05, MinNrOfGenes = 2, 
+OnlyManuCur = FALSE, RefSet = NULL, GOAall = ReadLRN("GOAall.lrn", 
+system.file("extdata",package = "ORA")))`
+
+**Input parameters:**  
+
+  * `NCBIs`:  
+Numeric; Vector of NCBI numbers of genes in sample (gene set of interest).
+  * `Correction`:  
+String; Default: `'BON'`.  
+Type of correction for mulitple testing of the p-values.
+`'BON'` for Bonferroni, `'FDR'` for False Discovery Rate, `'RAW'` if no correction should be done.
+  * `PvalueThreshold`:  
+Numeric; Default: `0.05`.  
+P-value threshold. GO terms with p-values greater than `PvalueThreshold` will be ignored.
+  * `MinNrOfGenes`:  
+Numeric; Default: `2`.  
+Minimum number of genes annotated to one term that is accepted. Only GO terms with more than
+`MinNrOfGenes` genes will be considered in analysis.
+  * `OnlyManuCur`:  
+Boolean; Default: `FALSE`.  
+Set `TRUE` if only manually curated gene annotations should be considered.
+  * `RefSet`:  
+Numeric; Default: `NULL`.  
+Vector of NCBI numbers of genes that form the reference set (universe). If not given i.e.
+`NULL` or missing, all known genes are taken as universe.
+	* `GOAall`:  
+Lrn-File containing all direct and indirect annotations of genes to GOterms as sparse
+Matrix. File can be found in `system.file("extdata", package = 'ORA')`, called `GOAall.lrn`.
+
+**Details:**  
+To read the output files you can simply use any text editor. If you would like to use the results for further calculations
+it is recommended to install the [`DataIO`](https://github.com/aultsch/DataIO) package from GitHub. There you can find
+functions to read and write `*.lrn` and `*.names`-files easily in your R console.
+
+**Output parameters:**  
+
+* `ORAresults`:  
+List of 4:  
+	* `LRNresults`: List of 16:
+Information needed to generate the lrn file containing all the calculated values for
+the GO terms found to be significant for input genes.
+		* `LRNresults$GOtermNr`: Numeric; GO term numbers found to be significant for input genes. 
+		* `LRNresults$OntologyNr`: Numeric; Number of ontology (`1` = biological process (BP), `2` = molecular function (MF), `4` = cellular component (CC)). 
+		* `LRNresults$NrOfGenesInUniverse`: Numeric; Number of genes in universe used for p-value computation. 
+		* `LRNresults$NrOfGenesInSample`: Numeric; Number of input genes used for p-value computation. 
+		* `LRNresults$NrOfAnnotationsInTerm`: Numeric; Number of annotations associated to GO term. 
+		* `LRNresults$Up`: Numeric; `1` if GO term is up regulated (`ExpNrOfAnnsInTerm < ObservedNrOfAnnsInTerm`), `0` if down. 
+		* `LRNresults$ExpNrOfAnnsInTerm`: Numeric; Statistically expected number of genes annotated to GO term. 
+		* `LRNresults$ObservedNrOfAnnsInTerm`: Numeric; Empirically observed number of genes annotated to GO term.
+		* `LRNresults$RelDiff`: Numeric; Relative difference of expected and observed in percent.
+		* `LRNresults$Pvalue`: Numeric; P-values for each GO term received by hypergeometric test.
+		* `LRNresults$LogPvalue`: Numeric; `log(Pvalue)`. 
+		* `LRNresults$Certainty`: Numeric; Certainty value. See [`certainty`](#certainty). 
+		* `LRNresults$InfoValue`: Numeric; Value describing partial Shannon information. See [`infoValue`](#infoValue).
+		* `LRNresults$Remarkable`: Numeric; Product of `Certainty` and `InfoValue` divided by `100`.
+		* `LRNresults$Importance`: Numeric; Minimum of `Certainty` and `InfoValue`.
+		* `LRNresults$InfoContent`: Numeric; `InformationContent` from `GOTermInfosBP/MF/CC.lrn` depending on `OnlyManuCur`.
+		* `LRNresults$InfoContentORA`: Numeric; `-log2(ObservedNrOfAnnsInTerm/NrOfGenesInSample)`.
+		* `LRNresults$IsHeadline`: Boolean; `1` if GO term is headline, `0` if not.
+		* `LRNresults$IsDetail`: Boolean; `1` if GO term is detail, `0` if not.
+	* `NAMESresults`: List of 3:
+Information needed to generate the names file containing information about GO terms.
+		* `NAMESresults$GOtermNr`: Numeric; GO term numbers found to be significant for input genes.
+		* `NAMESresults$GOtermDescription`: String; Description of GO terms = `termDescription(GOtermId)`. 
+		* `NAMESresults$GOtermId`: String; GO term Id = `termId(GOtermNr)`.
+	* `Genes2GOtermsMatrix`: Numeric; matrix explaining the connection of genes and GO terms. 
+`Genes2GOtermsMatrix[i,j]==1` iff gene in `i`-th row is annotated to GO term in `j`-th row.
+	* `GO2GOAdjMatrices`: List of 4:
+Adjacency matrices for each ontology and combined sparse matrix.
+		* `GO2GOAdjMatrices$GO2GOAdjMatrix`: Numeric; Block diagonal adjacency matrix (formal class `dgCMatrix` from package [`Matrix`](http://stat.ethz.ch/R-manual/R-devel/library/Matrix/html/bdiag.html)) describing the complete directed 
+acyclic graph (DAG) of the significant GOterms up to the root, i.e. the edges between GOterms and their parents. `GO2GOAdjMatrix[i,j]== 1` iff `i` is parent of `j`.
+First row contains numbers `1`, `2`, and `4` specifying the ontology `BP`, `MF`, and `CC`.
+		* `GO2GOAdjMatrices$AdjMatrixGO2GOBP`: Numeric; (non-sparse) Adjacency matrix of BP-DAG. 
+`AdjMatrixGO2GOBP[i,j]==1` iff `i` is parent of `j`.
+		* `GO2GOAdjMatrices$AdjMatrixGO2GOMF`: Numeric; (non-sparse) Adjacency matrix of MF-DAG. 
+`AdjMatrixGO2GOBP[i,j]==1` iff `i` is parent of `j`.
+		* `GO2GOAdjMatrices$AdjMatrixGO2GOCC`: Numeric; (non-sparse) Adjacency matrix of CC-DAG. 
+`AdjMatrixGO2GOBP[i,j]==1` iff `i` is parent of `j`.
+
+
+**Author:**  
+CL
+
+**See also:**  
+[`dbtORA`](# dbtORA).
+
+**Example:**  
+For this example, again the random set of genes from `ExampleNCBInamesFile.names` in `system.file('extdata', package = 'ORA')` is used. P-value threshold, 
+again, is set to `1`.
+For further documentation for function `ReadNAMES`, package [`DataIO`](https://github.com/aultsch/DataIO) from GitHub is recommended.
+```
+# NCBIs <- ReadNAMES('ExampleNCBInamesFile.names', system.file('extdata', package = 'ORA'))$Key
+NCBIs <- c(8402, 6199, 72, 387254, 10083, 170370, 25921, 9324, 7305, 6675, 2, 3224, 90342, 20, 121340, 89792, 83998, 140469, 5005, 7398, 26575, 53826, 5024, 50618, 3061, 51176, 7903, 90529, 28316, 6406)
+ORA(NCBIs, Correction = "BON", PvalueThreshold = 1, MinNrOfGenes = 2, OnlyManuCur = FALSE, RefSet = NULL, GOAall = ReadLRN("GOAall.lrn", system.file("extdata",package = "ORA")))
+```
+NOTE: There is no warning this time, as `OnlyManuCur = FALSE`.
+
+
+***
+
+### ORAfilename {#oRAfilename}
+
+**Description:**  
+Function to complete the `OutFile` name passed to `dbtORA` with ORA parameters.
+
+**Usage:**  
+`ORAfilename(OutFile, NrOfValidInputGenes, Correction, PvalueThreshold, MinNrOfGenes, OnlyManuCur, WithRefSet = FALSE)`
+
+**Input parameters:**  
+
+* `OutFile`:  
+String; Filename of the output files. Will be complemented by the parameters of the ORA.
+* `NrOfValidInputGenes`:  
+String; Number of valid input genes = `#(input genes) - #(duplicated and non-annotated genes)`.
+* `Correction`:  
+String; Type of correction for mulitple testing of the p-values.
+`'BON'` for Bonferroni, 
+`'FDR'` for False Discovery Rate,
+`'RAW'` if no correction should be done.
+* `PvalueThreshold`:  
+Numeric; P-value threshold. GO-Terms with p-values greater than `PvalueThreshold` will be ignored.
+* `MinNrOfGenes`:  
+Numeric; Minimum number of genes annotated to one Term that is accepted. Only GO terms with more than
+`MinNrOfGenes` genes will be considered in calculation.
+* `OnlyManuCur`:  
+Boolean; Set `TRUE` if only manually curated gene annotations should be considered.
+* `WithRefSet`:  
+Boolean; Default: `FALSE`. 
+Set `TRUE` if a reference set of genes is used.
+
+
+**Output parameters:**  
+
+* `OutFilePlusParams`: String; The complemented `OutFile`.
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`dbtORA`](# dbtORA).
+
+
+
+***
+
+<!--### dbtORA-package 
+
+
+data bionics toolbox: Overrepresentation Analysis
+
+**Description:**  
+Calculation functions for overrepresentation analysis and directed acyclic graph building
+
+**Details:**  
+Package: dbtORA
+Type: Package
+Version: 3.1.9
+Date: 2018-01-04
+License: GPL
+
+**Authors:**  
+Catharina Lippmann, Michael Thrun, Alfred Ultsch, Jörn Lötsch
+
+**Maintainer:**  
+<lippmanc@mathematik.uni-marburg.de>
+
+**References:**
+Loetsch, J., Ultsch, A.: Functional abstraction for large Gene Ontology taxonomies, in: Kestler, HA., Binder, H., Schmid, M., Kraus, JM. (eds): Statistical Computing 2012, Ulmer Informatik-Berichte, pp. 6, 2012 (ISSN 0939-5091).
+Loetsch, J., Doehring, A., Mogil, J.S., Arndt, T., Geisslinger, G., Ultsch, A.: Functional genomics of pain in analgesic drug development and therapy, in: Pharmacology & Therapeutics, Volume 139, Issue 1, from pp. 60 to 70, 2013.
+
+
+***
+-->
+
+### plotGOgraph {#plotGOgraph}
+
+**Description:**  
+Function draws and colors the gene ontology DAG of input GO terms depending on input parameters
+and saves it as `PlotFile`.
+
+
+**Usage:**  
+`plotGOgraph(Adj,GOtermIDs,PlotFile,PlotDirectory=getwd(), Significant=rep(1,length(GOtermIDs)),IsHeadline=rep(0,length(GOtermIDs)), MarkDetails=TRUE, Overwrite=TRUE, GOtermString=NULL,Remarkable=NULL,Pvalues=NULL, NrGenesInTerm=NULL,Expected = NULL, Observed = NULL, Importance = NULL, Up=NULL)`
+
+
+**Input parameters:**  
+
+* `Adj`:  
+Adjacency matrix of GO terms where `Adj[i,j]==1` iff `i` is parent of `j`.
+* `GOtermIDs`:  
+GO term IDs, e.g. `"GO:0008150"`.
+* `PlotFile`:  
+Name of the output file including the extension one of `'png'`, `'pdf'`, `'eps'`. (If no extension specified `'png'` is used).
+* `PlotDirectory`:  
+Output directory. Default: `getwd()`.
+* `Significant`:  
+Terms with `Significant==1` are drawn in red, others white.
+* `IsHeadline`:  
+Terms with `IsHeadline==1` are marked in yellow.
+* `MarkDetails`:  
+Default: `TRUE`.  
+Set `TRUE` if details of the dag should be coloured blue. 
+* `Overwrite`:  
+Default: `TRUE`.  
+Set `TRUE` if files in `PlotDirectory` with same file name as `PlotFile` should be replaced by new file. 
+* `GOtermString`:  
+Default: NULL.  
+GO term strings, e.g `"biological_process"`. If not given (`NULL`), GO term strings will be generated automatically.
+* `Remarkable`:  
+Remarkable value of GO terms. See also [`remarkableness`](# remarkableness).
+* `Pvalues`:  
+Default: NULL.  
+P-values of GO terms. 
+* `NrGenesInTerm`:  
+Default: NULL.  
+The number of annotated genes for each GO term. 
+* `Observed`:  
+Default: NULL.  
+Number of observed annotations for each GO term. 
+* `Expected`:  
+Default: NULL.  
+Number of statistically expected annotations for each GO term.
+* `Importance`:  
+Default: NULL.  
+Importance value of GO terms.
+* `Up`:  
+Default: NULL.  
+If there are more than the expected number of genes annotated to the GO term, `Up` is set to `1` else `0`. Significant GO terms where `Up==1` are marked in red, other significant terms in green.
+
+
+**Output parameters:**  
+`PlotFile` in `PlotDirectory` with DAG of input GO terms.
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`drawDAG`](# drawDAG).
+
+
+**Example:**  
+Artificial example just to show the functionality of `plotGOgraph`.
+```
+OntologyNr <- 1 # for biological process
+Ancestors <- termsAncestors(GOtermNr = 6796, OntologyNr)$Ancestors
+AdjMatrixAndTermNrs <- adjMatrixTermsAncestors(GOtermNrInclAncestors = c(6796, Ancestors), OntologyNr)
+GOtermID <- termId(c(6796, Ancestors))
+PlotFile <- 'Example4Vignette.png'
+Significant <- c(1, 1, 0, 1, 1, 1)
+IsHeadline <- c(0, 0, 0, 1, 1, 0)
+Up <- c(1, 1, 1, 1, 0, 1)
+plotGOgraph(Adj = AdjMatrixAndTermNrs$AdjMatrix, GOtermID = GOtermID, PlotFile = PlotFile, PlotDirectory=getwd(), Significant=Significant, IsHeadline=IsHeadline, MarkDetails=TRUE, Overwrite=TRUE, GOtermString=NULL, Remarkable=NULL, Pvalues=NULL, NrGenesInTerm=NULL, Expected = NULL, Observed = NULL, Importance = NULL, Up=Up)
+```
+
+
+***
+
+### remarkableness {#remarkableness}
+
+**Description:**  
+Function to calculate the remarkableness of a GO term.
+
+**Usage:**  
+`remarkableness(Certainty, InfoValue)`
+
+**Input parameters:**  
+
+  * `Certainty`:  
+Numeric; Vector of certainty values of GO terms. See ['certainty(Pvalues)'](# certainty).
+  * `InfoValue`:  
+Numeric; Vector of information values of GO terms. See [`infoValue(NrOfAnnotationsInTerm, NrOfGenesInUniverse)`](# infoValue).
+
+
+**Output parameters:**  
+
+* `Remakable`:  
+Numeric; Vector containing remarkableness values = certainty * information value / 100 of the GO terms.  
+
+
+**Author:**  
+CL  
+
+
+**See also:**  
+[`certainty`](#certainty), 
+[`infoValue`](#infoValue), 
+[`importance`](#importance).
+
+
+**Example:**  
+```
+Certainty <- c(30, 60, 70, 90)
+InfoValue <- c(80, 70, 20, 70)
+remarkableness(Certainty, InfoValue)
+```
+
+
+***
+
+### termDescription {#termDescription}
+
+**Description:**  
+Yields description of inputed GO-term ID.
+
+**Usage:**  
+`termDescription(GOtermId)`
+
+**Input parameters:**  
+
+  * `GOtermId`:  
+Vector of GO-term IDs, e.g. `"GO:0008150"`.
+
+
+**Details:**  
+Requires package [`GO.db`](https://bioconductor.org/packages/release/data/annotation/html/GO.db.html).
+
+
+**Output parameters:**  
+
+* `GOTermDescription`:  
+Vector of strings that denote the GO terms, e.g. `"biological process"`.
+
+
+**Authors:**  
+CL, MT, AU
+
+
+**See also:**  
+[`termId'](# termId), [`termNr`](# termNr).
+
+**Example:**  
+```
+termDescription('GO:0008150')
+```
+
+
+***
+
+### termId {#termId}
+
+**Description:**  
+Casts GO term numbers to GO term IDs.
+
+**Usage:**  
+`termId(GOtermNr)`
+
+**Input parameters:**  
+
+* `GOtermNr`:
+Numeric; Vector of GO term numbers, e.g. `8150`.
+
+
+**Output parameters:**  
+
+* `GOtermId`:  
+String; Vector of GO term IDs, e.g.  `"GO:0008150"`.
+
+
+**Authors:**  
+CL, MT, AU
+
+
+**See also:**  
+[`termDescription'](# termDescription), [`termNr`](# termNr).
+
+
+**Example:**  
+```
+termId(8150)
+```
+
+
+***
+
+### termNr {#termNr}
+
+**Description:**  
+Casts GO term IDs to GO term numbers.
+
+**Usage:**  
+`termNr(GOtermId)`
+
+**Input parameters:**  
+
+  * `GOtermId`:  
+String; Vector of GO term IDs, e.g. `"GO:0008150"`.
+
+
+
+**Output parameters:**  
+
+* `GOtermNr`:  
+Numeric; Vector of GO term numbers, e.g. `8150`.
+
+
+**Authors:**  
+CL, MT, AU
+
+
+**See also:**  
+[`termDescription'](# termDescription), [`termId`](# termNr).
+
+
+**Example:**  
+```
+termNr('GO:0008150')
+```
+
+***
+
+### termpathsHeadlines {#termpathsHeadlines}
+
+
+**Description:**  
+Calculates headlines for each path from root to GO detail terms. Headlines
+represent most important nodes in these paths, i.e. the GO terms with the highest `Importance`
+on the path.
+
+**Usage:**  
+`termpathsHeadlines(AdjMatrix, GOtermNr, Importance, OntologyNr = 1)`
+
+**Input parameters:**  
+
+  * `AdjMatrix`:  
+Numeric; Adjacency matrix of GO terms. `AdjMatrix[i,j] == 1` iff there exists an edge in 
+GO DAG from node `i` to node `j`, i.e. `i` is parent of `j`.
+  * `GOtermNr`:  
+Numeric; Vector of all GO term numbers that are in the considered DAG corresponding to rows and columns of `AdjMatrix`.
+  * `Importance`:  
+Numeric; Values between `0` and `100` specifying the importance of the corresponding GO term. For example, can be
+importance or remarkableness of GO terms.
+  * `OntologyNr`:  
+Numeric; Default = `1`.  
+To select the ontology in which the `GOtermNr`s are. One of: 
+`1` for biological process, 
+`2` for molecular function or 
+`4` for cellular component.
+
+**Details:**  
+PLEASE NOTE: 
+All given GO terms have to be in the specified ontology and all 
+ancestors from GO terms to ontology root (including the root term itself) must 
+be included in the given vector of GO terms.
+
+**Output parameters:**  
+
+* `Headlines`:  
+Numeric; Vector of GO term numbers that are headlines, the GO term numbers with maximum
+`Importance` for each path from detail to GO root.
+* `AllTaxonomies`:  
+List of paths from GO root to all details given by `AdjMatrix` in form of GO term numbers vectors.
+(E.g. `AllTaxonomies[[1]]== c(8150, 44699, 44763, 22402, 51231, 22)` is a path from 
+BP root `"GO:0008150"` to detail `"GO:0000022"` via nodes `44699`, `44763`, `22402` and `51231`
+in BP gene ontology.)
+* `MaxImportanceInd`:  
+Vector of indices which indicate the position of the highest value of 
+importance in the paths in `AllTaxonomies`.
+(E.g. `MaxImportanceInd==c(2,4,5)` then `AllTaxonomies[[1]][2]` would be the GO term 
+with the highest importance value (i.e. headline) in the first path, 
+`AllTaxonomies[[2]][4]` the one in the second path and `AllTaxonomies[[3]][5]` the one
+in the third path.)
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`GOroot2TermPaths`](# GOroot2TermPaths), [`remarkableness`](# remarkableness), [`importance`](# importance).
+
+
+**Example:**
+```
+OntologyNr <- 1 # for biological process
+Ancestors <- termsAncestors(GOtermNr = 6796, OntologyNr)$Ancestors
+AdjMatrixAndTermNrs <- adjMatrixTermsAncestors(GOtermNrInclAncestors = c(6796, Ancestors), OntologyNr)
+Importance <- c(29, 49, 75, 98, 37, 92)
+termpathsHeadlines(AdjMatrix = AdjMatrixAndTermNrs$AdjMatrix, GOtermNr = AdjMatrixAndTermNrs$GOtermNrs, Importance = Importance, OntologyNr = OntologyNr)
+```
+
+
+
+***
+
+### termsAncestors {#termsAncestors}
+termsAncestors
+
+**Description:**  
+Function returns vector of all ancestors in ontology for given GO term numbers.
+
+**Usage:**  
+`termsAncestors(GOtermNr, OntologyNr)`
+
+**Input parameters:**  
+
+  * `GOtermNr`:  
+Numeric; Vector of GO term numbers.
+
+  * `OntologyNr`:  
+Numeric; To select the ontology. One of: 
+`1` for biological process, 
+`2` for molecular function or 
+`4` for cellular component.
+
+
+**Output parameters:**  
+
+* `Ancestors`:  
+Numeric; Unique and by number sorted GO terms that are ancestors of input GO terms.
+* `TermsWithoutAncestors`:  
+Numeric; Vector of those GO terms for that no ancestors could be found.
+
+
+**Author:**  
+CL
+
+
+**See also:**
+[`adjMatrixTermsAncestors`](# adjMatrixTermsAncestors).
+
+**Example:**
+```
+OntologyNr <- 1 # for biological process
+termsAncestors(GOtermNr = 6796, OntologyNr)
+```
+
+
+
+***
+
+### updateORAdatabase {#updateORAdatabase}
+
+
+**Description:**  
+With this function user can update database used for ORA. Determining the point in
+time this should be done himself. (E.g., to keep the database untill project is done.)
+The new files will be temporary saved in `system.file('extdata', package = 'ORA')`. Updating the
+data is only necessary if user updates R to newer version and packages [`GO.db`](https://bioconductor.org/packages/release/data/annotation/html/GO.db.html) and 
+[`org.Hs.eg.db`](https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html) are updated. Timestamp of data provided in the package ORA: 31 January 2018.
+Function has then to be called every time after restart of R session.
+
+**Usage:**  
+`updateORAdatabase()`
+
+
+**Author:**  
+CL
+
+
+**See also:**  
+[`dbtORA`](# dbtORA).
+
+
+
+***
+
+### WriteORAresults {#WriteORAresults}
+
+**Description:**  
+Function to write `*.lrn` file of GO terms and the computed values, `*.names` file of GO terms and their
+descriptions, matrix of annotations of genes and GO terms, matrix of structure of DAG of GO terms and a
+corresponding explanatory `*.names` file. 
+
+**Usage:**  
+`WriteORAresults(FileNameWithoutExt, ORAresults, OutDirectory = getwd(), InFileWithExt = "")`
+
+**Input parameters:**  
+
+* FileNameWithoutExt{
+String. Name of the output file without extension.
+* `ORAresults`:  
+List of 4. For further details see function ORA.
+	* `LRNresults`: List of 19 containing results relevant for lrn:  
+`LRNresults = list(GOtermNr, OntologyNr, NrOfGenesInUniverse, 
+NrOfGenesInSample, NrOfAnnotationsInTerm, Up, 
+ExpNrOfAnnsInTerm, ObservedNrOfAnnsInTerm, 
+RelDiff, Pvalue, LogPvalue, Certainty, InfoValue, 
+Remarkable, Importance, InfoContent, InfoContentORA, IsHeadline, IsDetail)`
+	* `NAMESresults`: List of 3 containing results relevant for names:  
+`NAMESresults = list(GOtermNr, GOtermDescription, GOtermId)`
+	* `Genes2GOtermsMatrix`: Matrix describing the annotations of genes to GO terms.
+	* `GO2GOAdjMatrices`: List of 4 containing the adjacency matrices for each ontology and the 
+combined matrix representing the DAGs of significant GOterms:  
+`GO2GOAdjMatrices = list(GO2GOSparseAdjMatrix, AdjMatrixGO2GOBP, 
+AdjMatrixGO2GOMF, AdjMatrixGO2GOCC)`
+* `OutDirectory`:  
+String. Default: current directory.  
+Directory where the files should be saved.
+* `InFileWithExt`:  
+String. Default: `''`.  
+File name of original input file.
+
+For further detail on the input see [`ORA`](# oRA)
+	
+
+**Output parameters:**  
+Files saved in `OutDirectory` containing all the information received by ORA, Genes to GO terms matrix
+and adjacency matrix of the GO terms. For further detail on the output see [`dbtORA`](# dbtORA).
+
+
+**Author:**  
+CL
+
+
+**See also:**
+[`dbtORA`](# dbtORA), [`ORA`](# oRA).
+
+

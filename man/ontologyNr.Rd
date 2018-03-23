@@ -12,14 +12,14 @@ Returns for given GOterm (as ID or number) the corresponding gene ontology as nu
 If the result is 0, something went wrong.  
 }
 \usage{
-ontologyNr(GOtermNrOrId, verbose = FALSE)
+ontologyNr(GOtermNrOrId, Verbose = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 	\item{GOtermNrOrId}{
 		String vector [1:n] of GOtermIds (like 'GO:0008150') OR Numeric vector [1:n] 
 		of GOterm numbers (like 8150).}
-	\item{verbose}{
+	\item{Verbose}{
 		Boolean variable. If TRUE, function prints information in GUI window. 
 		Default: FALSE}
 }

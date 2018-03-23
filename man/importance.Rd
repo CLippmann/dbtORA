@@ -28,7 +28,7 @@ See infoValue(NrOfAnnotationsInTerm, NrOfGenesInUniverse).}
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 \item{Importance}{Numeric; Values between 0 and 100.
-Vector of importance value based on InfoValue and Certainty.}
+Vector of importance value based on InfoValue and Certainty, i.e. minimum of InfoValue and Certainty.}
 }
 
 \author{

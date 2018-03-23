@@ -1,4 +1,4 @@
-ontologyNr <- function(GOtermNrOrId, verbose = FALSE){
+ontologyNr <- function(GOtermNrOrId, Verbose = FALSE){
 # Returns for given GOterm (as ID or number) the corresponding gene ontology as number, where
 # 1 codes for biological process, 2 for molecular function and 4 for cellular component.
 # If the result is 0, something went wrong.
@@ -11,7 +11,7 @@ ontologyNr <- function(GOtermNrOrId, verbose = FALSE){
 #									Numeric vector [1:n] of GOterm numbers (like 8150).
 
 # OPTIONAL:
-# verbose					Boolean variable. If TRUE, function prints information in GUI window.
+# Verbose					Boolean variable. If TRUE, function prints information in GUI window.
 #									Default: FALSE
 
 # OUTPUT:
@@ -39,12 +39,12 @@ if(is.numeric(GOtermNrOrId)){
 # Funktion Ontology() aus package GO.db aufrufen
 OntoName = Ontology(GOtermId)
 
-# Falls es welche gibt, die nicht gefunden wurden: Ausgeben (falls verbose = TRUE ist)
+# Falls es welche gibt, die nicht gefunden wurden: Ausgeben (falls Verbose = TRUE ist)
 NAs <- is.na(OntoName)
-if(verbose & any(is.na(OntoName))){
+if(Verbose & any(is.na(OntoName))){
 	warning(paste0("OntologyName: There were ", sum(NAs)," GOterm IDs that can't be found."))
 	print(paste0("GOterm IDs not found: ", GOtermId[NAs]))
-}# end if(verbose & any(is.na(OntoName)))
+}# end if(Verbose & any(is.na(OntoName)))
 
 # String in Zahl umrechnen. BP == 1, MF == 2, CC == 4.
 OntoNr <- ifelse(OntoName=='BP', 1, ifelse(OntoName=='MF', 2, ifelse(OntoName=='CC', 4, NaN)))

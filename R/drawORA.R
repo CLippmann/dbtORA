@@ -17,7 +17,7 @@ drawORA <- function(ORAresults, PlotFileWithExt, PlotDirectory, MarkDetails = TR
 	# LRNresults$ExpNrOfAnnsInTerm			Numeric; Statistically expected number of genes annotated to GO term. 
 	# LRNresults$ObservedNrOfAnnsInTerm	Numeric; Empirically observed number of genes annotated to GO term.
 	# LRNresults$RelDiff								Numeric; Relative difference of expected and observed in percent.
-	# LRNresults$Pvalue									Numeric; Pvalues for each GO term recieved by statistical test.
+	# LRNresults$Pvalue									Numeric; Pvalues for each GO term received by statistical test.
 	# LRNresults$LogPvalue							Numeric; log(Pvalues). 
 	# LRNresults$Certainty							Numeric; Certainty value. See function certainty. 
 	# LRNresults$InfoValue							Numeric; Value describing partial Shannon information. See infoValue.
@@ -37,7 +37,7 @@ drawORA <- function(ORAresults, PlotFileWithExt, PlotDirectory, MarkDetails = TR
 #															GO term in ith row.
 # GO2GOAdjMatrices		List of 4:
 #											Adjacency matrices for each ontology and combined sparse matrix.
-	#	GO2GOAdjMatrices$GO2GOSparseAdjMatrix		Numeric; Sparse adjacency matrix describing the complete directed 
+	#	GO2GOAdjMatrices$GO2GOAdjMatrix		Numeric; Sparse adjacency matrix describing the complete directed 
 	#																					acyclic graph (DAG) of the significant GOterms up to the root, 
 	#																					i.e. the edges between GOterms and their parents. Dimnames of 
 	#																					columes are specifying the Ontology - BP/MF/CC.
