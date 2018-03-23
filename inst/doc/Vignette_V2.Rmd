@@ -396,7 +396,7 @@ Set `TRUE` if existing files with the same name should be overwritten.
 
 
 **Details:**  
-Function requires the freely available visualization software GraphViz ([website](http://www.graphviz.org), [publication](https://s3.amazonaws.com/academia.edu.documents/5321143/10.1.1.106.5621.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1521459651&Signature=%2FF6eJ%2BtEUWoKeAzwZd4GmlyJQCk%3D&response-content-disposition=inline%3B%20filename%3DAn_open_graph_visualization_system_and_i.pdf)).  
+Function requires the freely available visualization software GraphViz ([website](http://www.graphviz.org)).  
 
 \newline
 
