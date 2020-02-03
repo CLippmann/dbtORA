@@ -18,7 +18,7 @@ plotGOgraph(Adj,GOtermIDs,PlotFile,PlotDirectory=getwd(),
 \arguments{
 \item{Adj}{Adjacency matrix of GO terms where Adj[i,j]==1 iff i is parent of j.}
 \item{GOtermIDs}{GO term IDs, e.g. "GO:0008150".}
-\item{PlotFile}{Name of the output file.}
+\item{PlotFile}{Name of the output file. Extension determines the output format, one of png, eps, svg or pdf. Default output format: png.}
 \item{PlotDirectory}{Output directory. Default: getwd().}
 \item{Significant}{Terms with \code{Significant==1} are drawn in red, others white.}
 \item{IsHeadline}{Terms with \code{IsHeadline==1} are marked in yellow.}
@@ -41,6 +41,9 @@ PlotFile in PlotDirectory with DAG of input GO terms.
 \author{
 CL
 }
+
+\seealso{
+For further details about coloring, please see \code{\link{drawORA}}.}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
