@@ -75,7 +75,7 @@ Set TRUE if headlines of the DAG should be marked in yellow colour.
 }
   \item{PlotExt}{
 String;
-Extension of the plotfile showing the DAG. One of 'pdf' , 'eps' or 'png'.
+Extension of the plotfile showing the DAG. One of 'pdf' , 'eps', 'svg' or 'png'.
 }
 }
 
@@ -88,7 +88,3 @@ CL
 \code{\link{dbtORA}}.
 }
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

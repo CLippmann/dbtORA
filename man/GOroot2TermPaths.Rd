@@ -43,7 +43,3 @@ A list of indices such that GOtermNr[Taxonomy[[i]]] is the i-th path from
 CL
 }
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

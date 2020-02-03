@@ -33,7 +33,7 @@ MarkHeadlines = TRUE, Overwrite = TRUE)
   \item{PlotFileWithExt}{
 		String;
 		Name of the file that should be drawn with extension.
-		Extension can be one of 'png', 'eps' or 'pdf'. Default is 'png'.}
+		Extension can be one of 'png', 'eps', 'svg' or 'pdf'. Default is 'png'.}
   \item{PlotDirectory}{
 		String; Default: current directory
 		Directory where PlotFileWithExt should be saved.}
@@ -71,7 +71,4 @@ CL
 \seealso{
 For further details about ORAresults, please see \code{\link{ORA}}.}
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
